@@ -95,6 +95,8 @@
     <string name="toast_apk_blacklisted">Đã vào danh dách đen</string>
     <string name="toast_anonymous_restriction">Không khả dụng trên tài khoản ẩn danh</string>
     <string name="title_updates">Cập nhật</string>
+    <string name="title_nav_books">Sách</string>
+    <string name="title_nav_you">Bạn</string>
     <string name="title_spoof_manager">Trình quản lý giả mạo</string>
     <string name="title_settings">Thiết đặt</string>
     <string name="title_purchase_history">Lịch sử giao dịch</string>

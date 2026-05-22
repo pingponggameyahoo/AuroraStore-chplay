@@ -15,11 +15,12 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -52,18 +54,52 @@ import com.aurora.store.data.room.update.Update
 import com.aurora.store.viewmodel.all.UpdatesViewModel
 import kotlinx.coroutines.launch
 
-private enum class MainTab(
+private const val PAGER_PAGE_COUNT = 3
+
+private enum class MainPagerPage {
+    GAMES,
+    APPS,
+    UPDATES
+}
+
+private enum class MainNavItem(
     @StringRes val labelRes: Int,
-    @DrawableRes val iconRes: Int
+    @DrawableRes val iconRes: Int,
+    val pagerPage: Int? = null,
+    val destination: Destination? = null,
+    val showUpdateBadge: Boolean = false
 ) {
-    APPS(R.string.title_apps, R.drawable.ic_apps),
-    GAMES(R.string.title_games, R.drawable.ic_games),
-    UPDATES(R.string.title_updates, R.drawable.ic_updates)
+    GAMES(
+        labelRes = R.string.title_games,
+        iconRes = R.drawable.ic_games,
+        pagerPage = 0
+    ),
+    APPS(
+        labelRes = R.string.title_apps,
+        iconRes = R.drawable.ic_apps,
+        pagerPage = 1
+    ),
+    SEARCH(
+        labelRes = R.string.action_search,
+        iconRes = R.drawable.ic_round_search,
+        destination = Destination.Search
+    ),
+    UPDATES(
+        labelRes = R.string.title_nav_books,
+        iconRes = R.drawable.ic_nav_book,
+        pagerPage = 2,
+        showUpdateBadge = true
+    ),
+    YOU(
+        labelRes = R.string.title_nav_you,
+        iconRes = R.drawable.ic_account,
+        destination = Destination.Installed
+    )
 }
 
 @Composable
 fun MainScreen(
-    initialTab: Int = 0,
+    initialTab: Int = 1,
     mainViewModel: MainViewModel = hiltViewModel(),
     updatesViewModel: UpdatesViewModel = hiltViewModel(),
     onNavigateTo: (Destination) -> Unit = {}
@@ -77,16 +113,22 @@ fun MainScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
-        initialPage = initialTab.coerceIn(
-            0,
-            MainTab.entries.size - 1
-        )
+        initialPage = initialTab.coerceIn(0, PAGER_PAGE_COUNT - 1)
     ) {
-        MainTab.entries.size
+        PAGER_PAGE_COUNT
     }
 
     var showMoreSheet by remember { mutableStateOf(false) }
     var appUpdateTarget by remember { mutableStateOf<Update?>(null) }
+
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val navBarColors = NavigationBarItemDefaults.colors(
+        selectedIconColor = colorResource(R.color.play_nav_selected),
+        selectedTextColor = colorResource(R.color.play_nav_selected),
+        indicatorColor = colorResource(R.color.play_nav_indicator),
+        unselectedIconColor = onSurface,
+        unselectedTextColor = onSurface
+    )
 
     fun handleNavigation(destination: Destination) {
         when (destination) {
@@ -124,7 +166,13 @@ fun MainScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = stringResource(MainTab.entries[pagerState.currentPage].labelRes),
+                title = stringResource(
+                    when (MainPagerPage.entries[pagerState.currentPage]) {
+                        MainPagerPage.GAMES -> R.string.title_games
+                        MainPagerPage.APPS -> R.string.title_apps
+                        MainPagerPage.UPDATES -> R.string.title_updates
+                    }
+                ),
                 actions = {
                     IconButton(onClick = { onNavigateTo(Destination.Downloads) }) {
                         Icon(
@@ -141,38 +189,41 @@ fun MainScreen(
                 }
             )
         },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { onNavigateTo(Destination.Search) }) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_round_search),
-                    contentDescription = stringResource(R.string.action_search)
-                )
-            }
-        },
         bottomBar = {
-            NavigationBar {
-                MainTab.entries.forEachIndexed { index, tab ->
+            NavigationBar(
+                containerColor = colorResource(R.color.play_nav_bar_background)
+            ) {
+                MainNavItem.entries.forEach { item ->
+                    val selected = item.pagerPage?.let { pagerState.currentPage == it } == true
                     NavigationBarItem(
-                        selected = pagerState.currentPage == index,
+                        selected = selected,
                         onClick = {
-                            coroutineScope.launch { pagerState.animateScrollToPage(index) }
+                            when {
+                                item.pagerPage != null -> {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(item.pagerPage)
+                                    }
+                                }
+                                item.destination != null -> onNavigateTo(item.destination)
+                            }
                         },
                         icon = {
-                            if (tab == MainTab.UPDATES && updateCount > 0) {
+                            if (item.showUpdateBadge && updateCount > 0) {
                                 BadgedBox(badge = { Badge { Text("$updateCount") } }) {
                                     Icon(
-                                        painter = painterResource(tab.iconRes),
+                                        painter = painterResource(item.iconRes),
                                         contentDescription = null
                                     )
                                 }
                             } else {
                                 Icon(
-                                    painter = painterResource(tab.iconRes),
+                                    painter = painterResource(item.iconRes),
                                     contentDescription = null
                                 )
                             }
                         },
-                        label = { Text(stringResource(tab.labelRes)) }
+                        label = { Text(stringResource(item.labelRes)) },
+                        colors = navBarColors
                     )
                 }
             }
@@ -187,19 +238,19 @@ fun MainScreen(
             HorizontalPager(
                 state = pagerState,
                 userScrollEnabled = false,
-                beyondViewportPageCount = MainTab.entries.size - 1,
+                beyondViewportPageCount = PAGER_PAGE_COUNT - 1,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
-                when (MainTab.entries[page]) {
-                    MainTab.APPS -> AppsGamesScreen(
-                        pageType = 0,
-                        onNavigateTo = onNavigateTo
-                    )
-                    MainTab.GAMES -> AppsGamesScreen(
+                when (MainPagerPage.entries[page]) {
+                    MainPagerPage.GAMES -> AppsGamesScreen(
                         pageType = 1,
                         onNavigateTo = ::handleNavigation
                     )
-                    MainTab.UPDATES -> UpdatesScreen(
+                    MainPagerPage.APPS -> AppsGamesScreen(
+                        pageType = 0,
+                        onNavigateTo = onNavigateTo
+                    )
+                    MainPagerPage.UPDATES -> UpdatesScreen(
                         viewModel = updatesViewModel,
                         onNavigateTo = ::handleNavigation,
                         onRequestUpdate = { update ->

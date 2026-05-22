@@ -21,4 +21,9 @@
     <!--Common Colors-->
     <color name="colorAccent">#6C63FF</color>
     <color name="ic_launcher_background">#6C63FF</color>
+
+    <!-- Play Store–style bottom navigation -->
+    <color name="play_nav_bar_background">#E8F0FE</color>
+    <color name="play_nav_indicator">#D3E3FD</color>
+    <color name="play_nav_selected">#0B57D0</color>
 </resources>

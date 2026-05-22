@@ -288,6 +288,8 @@
     <string name="title_search_suggestion">"Search suggestion"</string>
     <string name="title_search_results">"Search results"</string>
     <string name="title_updates">"Updates"</string>
+    <string name="title_nav_books">"Books"</string>
+    <string name="title_nav_you">"You"</string>
     <string name="title_advanced">"Advanced"</string>
     <string name="title_manual_download">"Manual download"</string>
     <string name="toast_anonymous_restriction">"Not available on anonymous accounts"</string>
