@@ -92,7 +92,11 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
-fun SearchScreen(viewModel: SearchViewModel = hiltViewModel()) {
+fun SearchScreen(
+    viewModel: SearchViewModel = hiltViewModel(),
+    embeddedInMain: Boolean = false,
+    onNavigateTo: (Destination) -> Unit = {}
+) {
     val suggestions by viewModel.suggestions.collectAsStateWithLifecycle()
     val results = viewModel.apps.collectAsLazyPagingItems()
 
@@ -106,7 +110,9 @@ fun SearchScreen(viewModel: SearchViewModel = hiltViewModel()) {
         onSearch = onSearchCallback,
         onFetchSuggestions = onFetchSuggestionsCallback,
         onFilter = { filter -> viewModel.filterResults(filter) },
-        isAnonymous = viewModel.authProvider.isAnonymous
+        isAnonymous = viewModel.authProvider.isAnonymous,
+        embeddedInMain = embeddedInMain,
+        onNavigateTo = onNavigateTo
     )
 }
 
@@ -117,7 +123,9 @@ private fun ScreenContent(
     onFetchSuggestions: (String) -> Unit = {},
     onSearch: (String) -> Unit = {},
     onFilter: (filter: SearchFilter) -> Unit = {},
-    isAnonymous: Boolean = true
+    isAnonymous: Boolean = true,
+    embeddedInMain: Boolean = false,
+    onNavigateTo: (Destination) -> Unit = {}
 ) {
     val activity = LocalActivity.current as? ComponentActivity
     val textFieldState = rememberTextFieldState()
@@ -186,11 +194,13 @@ private fun ScreenContent(
                     )
                 },
                 leadingIcon = {
-                    IconButton(onClick = { activity?.onBackPressedDispatcher?.onBackPressed() }) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = stringResource(R.string.action_back)
-                        )
+                    if (!embeddedInMain) {
+                        IconButton(onClick = { activity?.onBackPressedDispatcher?.onBackPressed() }) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_arrow_back),
+                                contentDescription = stringResource(R.string.action_back)
+                            )
+                        }
                     }
                 },
                 trailingIcon = {
@@ -306,8 +316,10 @@ private fun ScreenContent(
                     AppDetailsScreen(
                         packageName = this,
                         onNavigateTo = { destination ->
-                            if (destination is Destination.AppDetails) {
-                                showDetailPane(destination.packageName)
+                            when (destination) {
+                                is Destination.AppDetails ->
+                                    showDetailPane(destination.packageName)
+                                else -> onNavigateTo(destination)
                             }
                         },
                         forceSinglePane = true

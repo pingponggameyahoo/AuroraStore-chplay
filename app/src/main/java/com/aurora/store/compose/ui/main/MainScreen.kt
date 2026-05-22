@@ -17,9 +17,9 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -45,6 +45,8 @@ import com.aurora.store.compose.navigation.Destination
 import com.aurora.store.compose.ui.apps.AppsGamesScreen
 import com.aurora.store.compose.ui.commons.MoreSheet
 import com.aurora.store.compose.ui.commons.NetworkScreen
+import com.aurora.store.compose.ui.installed.InstalledScreen
+import com.aurora.store.compose.ui.search.SearchScreen
 import com.aurora.store.compose.ui.sheets.AppUpdateSheet
 import com.aurora.store.compose.ui.updates.UpdatesScreen
 import com.aurora.store.data.model.NetworkStatus
@@ -54,20 +56,29 @@ import com.aurora.store.data.room.update.Update
 import com.aurora.store.viewmodel.all.UpdatesViewModel
 import kotlinx.coroutines.launch
 
-private const val PAGER_PAGE_COUNT = 3
+private const val PAGER_PAGE_COUNT = 5
+
+/** Maps settings default-tab preference (games / apps / updates) to [MainPagerPage] index. */
+internal fun defaultTabPreferenceToPagerPage(preferenceIndex: Int): Int = when (preferenceIndex) {
+    0 -> MainPagerPage.GAMES.ordinal
+    1 -> MainPagerPage.APPS.ordinal
+    2 -> MainPagerPage.UPDATES.ordinal
+    else -> MainPagerPage.APPS.ordinal
+}
 
 private enum class MainPagerPage {
     GAMES,
     APPS,
-    UPDATES
+    SEARCH,
+    UPDATES,
+    YOU
 }
 
 private enum class MainNavItem(
     @StringRes val labelRes: Int,
     @DrawableRes val iconRes: Int,
     @DrawableRes val selectedIconRes: Int,
-    val pagerPage: Int? = null,
-    val destination: Destination? = null,
+    val pagerPage: Int,
     val showUpdateBadge: Boolean = false
 ) {
     GAMES(
@@ -86,26 +97,26 @@ private enum class MainNavItem(
         labelRes = R.string.action_search,
         iconRes = R.drawable.ic_play_nav_search,
         selectedIconRes = R.drawable.ic_play_nav_search,
-        destination = Destination.Search
+        pagerPage = 2
     ),
     UPDATES(
         labelRes = R.string.title_nav_books,
         iconRes = R.drawable.ic_play_nav_books,
         selectedIconRes = R.drawable.ic_play_nav_books_selected,
-        pagerPage = 2,
+        pagerPage = 3,
         showUpdateBadge = true
     ),
     YOU(
         labelRes = R.string.title_nav_you,
         iconRes = R.drawable.ic_play_nav_you,
         selectedIconRes = R.drawable.ic_play_nav_you_selected,
-        destination = Destination.Installed
+        pagerPage = 4
     )
 }
 
 @Composable
 fun MainScreen(
-    initialTab: Int = 1,
+    initialTab: Int = MainPagerPage.APPS.ordinal,
     mainViewModel: MainViewModel = hiltViewModel(),
     updatesViewModel: UpdatesViewModel = hiltViewModel(),
     onNavigateTo: (Destination) -> Unit = {}
@@ -169,48 +180,52 @@ fun MainScreen(
         )
     }
 
+    val currentPage = MainPagerPage.entries[pagerState.currentPage]
+    val showMainTopBar = currentPage == MainPagerPage.GAMES ||
+        currentPage == MainPagerPage.APPS ||
+        currentPage == MainPagerPage.UPDATES
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = stringResource(
-                    when (MainPagerPage.entries[pagerState.currentPage]) {
-                        MainPagerPage.GAMES -> R.string.title_games
-                        MainPagerPage.APPS -> R.string.title_apps
-                        MainPagerPage.UPDATES -> R.string.title_updates
+            if (showMainTopBar) {
+                TopAppBar(
+                    title = stringResource(
+                        when (currentPage) {
+                            MainPagerPage.GAMES -> R.string.title_games
+                            MainPagerPage.APPS -> R.string.title_apps
+                            MainPagerPage.UPDATES -> R.string.title_updates
+                            MainPagerPage.SEARCH -> R.string.action_search
+                            MainPagerPage.YOU -> R.string.title_nav_you
+                        }
+                    ),
+                    actions = {
+                        IconButton(onClick = { onNavigateTo(Destination.Downloads) }) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_download_manager),
+                                contentDescription = stringResource(R.string.title_download_manager)
+                            )
+                        }
+                        IconButton(onClick = { showMoreSheet = true }) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_settings_account),
+                                contentDescription = stringResource(R.string.title_more)
+                            )
+                        }
                     }
-                ),
-                actions = {
-                    IconButton(onClick = { onNavigateTo(Destination.Downloads) }) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_download_manager),
-                            contentDescription = stringResource(R.string.title_download_manager)
-                        )
-                    }
-                    IconButton(onClick = { showMoreSheet = true }) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_settings_account),
-                            contentDescription = stringResource(R.string.title_more)
-                        )
-                    }
-                }
-            )
+                )
+            }
         },
         bottomBar = {
             NavigationBar(
                 containerColor = colorResource(R.color.play_nav_bar_background)
             ) {
                 MainNavItem.entries.forEach { item ->
-                    val selected = item.pagerPage?.let { pagerState.currentPage == it } == true
+                    val selected = pagerState.currentPage == item.pagerPage
                     NavigationBarItem(
                         selected = selected,
                         onClick = {
-                            when {
-                                item.pagerPage != null -> {
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(item.pagerPage)
-                                    }
-                                }
-                                item.destination != null -> onNavigateTo(item.destination)
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(item.pagerPage)
                             }
                         },
                         icon = {
@@ -259,6 +274,10 @@ fun MainScreen(
                         pageType = 0,
                         onNavigateTo = onNavigateTo
                     )
+                    MainPagerPage.SEARCH -> SearchScreen(
+                        embeddedInMain = true,
+                        onNavigateTo = onNavigateTo
+                    )
                     MainPagerPage.UPDATES -> UpdatesScreen(
                         viewModel = updatesViewModel,
                         onNavigateTo = ::handleNavigation,
@@ -293,6 +312,9 @@ fun MainScreen(
                             updatesViewModel.cancelDownload(packageName)
                         },
                         onCancelAll = { updatesViewModel.cancelAll() }
+                    )
+                    MainPagerPage.YOU -> InstalledScreen(
+                        onNavigateTo = onNavigateTo
                     )
                 }
             }

@@ -212,7 +212,7 @@ object NotificationUtil {
             .build()
 
     fun getUpdateNotification(context: Context, updatesList: List<Update>): Notification {
-        val contentIntent = getContentIntentForMain(context, initialTab = 2)
+        val contentIntent = getContentIntentForMain(context, initialTab = 3)
 
         return NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_UPDATES)
             .setSmallIcon(R.drawable.ic_updates)

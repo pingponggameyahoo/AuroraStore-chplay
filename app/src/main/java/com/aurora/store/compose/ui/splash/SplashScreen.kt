@@ -61,6 +61,7 @@ import com.aurora.store.BuildConfig
 import com.aurora.store.R
 import com.aurora.store.compose.composition.LocalNetworkStatus
 import com.aurora.store.compose.navigation.Destination
+import com.aurora.store.compose.ui.main.defaultTabPreferenceToPagerPage
 import com.aurora.store.data.model.AuthState
 import com.aurora.store.data.model.NetworkStatus
 import com.aurora.store.util.CertUtil.GOOGLE_ACCOUNT_TYPE
@@ -122,9 +123,11 @@ fun SplashScreen(
                     )
                     else -> onNavigateTo(
                         Destination.Main(
-                            Preferences.getInteger(
-                                context,
-                                Preferences.PREFERENCE_DEFAULT_SELECTED_TAB
+                            defaultTabPreferenceToPagerPage(
+                                Preferences.getInteger(
+                                    context,
+                                    Preferences.PREFERENCE_DEFAULT_SELECTED_TAB
+                                )
                             )
                         )
                     )
