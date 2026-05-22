@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Play Store BOOKS selected (0x7f08045d) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M200,880q-17,0 -28.5,-11.5T160,840V120q0,-17 11.5,-28.5T200,80h520q33,0 56.5,23.5T800,160v640q0,33 -23.5,56.5T720,880H200zm270,-458l49,-29q10,-6 20.5,-6t20.5,6l49,29q11,6 21,0.5t10,-17.5V160H440v245q0,12 9.5,17.5T470,422z" />
+</vector>

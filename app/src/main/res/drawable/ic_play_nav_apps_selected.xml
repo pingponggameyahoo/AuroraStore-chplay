@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Play Store APPS selected (0x7f080417) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M6,13h3c1.1,0 2,0.9 2,2v3c0,1.1 -0.9,2 -2,2H6c-1.1,0 -2,-0.9 -2,-2v-3c0,-1.1 0.9,-2 2,-2zm9,0h3c1.1,0 2,0.9 2,2v3c0,1.1 -0.9,2 -2,2h-3c-1.1,0 -2,-0.9 -2,-2v-3c0,-1.1 0.9,-2 2,-2zm0,-9h3c1.1,0 2,0.9 2,2v3c0,1.1 -0.9,2 -2,2h-3c-1.1,0 -2,-0.9 -2,-2V6c0,-1.1 0.9,-2 2,-2zM6,4h3c1.1,0 2,0.9 2,2v3c0,1.1 -0.9,2 -2,2H6c-1.1,0 -2,-0.9 -2,-2V6c0,-1.1 0.9,-2 2,-2z" />
+</vector>

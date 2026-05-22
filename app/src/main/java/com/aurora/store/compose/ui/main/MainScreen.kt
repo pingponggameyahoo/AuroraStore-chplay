@@ -65,6 +65,7 @@ private enum class MainPagerPage {
 private enum class MainNavItem(
     @StringRes val labelRes: Int,
     @DrawableRes val iconRes: Int,
+    @DrawableRes val selectedIconRes: Int,
     val pagerPage: Int? = null,
     val destination: Destination? = null,
     val showUpdateBadge: Boolean = false
@@ -72,27 +73,32 @@ private enum class MainNavItem(
     GAMES(
         labelRes = R.string.title_games,
         iconRes = R.drawable.ic_play_nav_games,
+        selectedIconRes = R.drawable.ic_play_nav_games_selected,
         pagerPage = 0
     ),
     APPS(
         labelRes = R.string.title_apps,
         iconRes = R.drawable.ic_play_nav_apps,
+        selectedIconRes = R.drawable.ic_play_nav_apps_selected,
         pagerPage = 1
     ),
     SEARCH(
         labelRes = R.string.action_search,
         iconRes = R.drawable.ic_play_nav_search,
+        selectedIconRes = R.drawable.ic_play_nav_search,
         destination = Destination.Search
     ),
     UPDATES(
         labelRes = R.string.title_nav_books,
         iconRes = R.drawable.ic_play_nav_books,
+        selectedIconRes = R.drawable.ic_play_nav_books_selected,
         pagerPage = 2,
         showUpdateBadge = true
     ),
     YOU(
         labelRes = R.string.title_nav_you,
         iconRes = R.drawable.ic_play_nav_you,
+        selectedIconRes = R.drawable.ic_play_nav_you_selected,
         destination = Destination.Installed
     )
 }
@@ -208,16 +214,19 @@ fun MainScreen(
                             }
                         },
                         icon = {
+                            val iconPainter = painterResource(
+                                if (selected) item.selectedIconRes else item.iconRes
+                            )
                             if (item.showUpdateBadge && updateCount > 0) {
                                 BadgedBox(badge = { Badge { Text("$updateCount") } }) {
                                     Icon(
-                                        painter = painterResource(item.iconRes),
+                                        painter = iconPainter,
                                         contentDescription = null
                                     )
                                 }
                             } else {
                                 Icon(
-                                    painter = painterResource(item.iconRes),
+                                    painter = iconPainter,
                                     contentDescription = null
                                 )
                             }
