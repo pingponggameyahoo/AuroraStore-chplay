@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <!-- Avoid a network request to fetch a favicon. -->
+    <link rel="icon" href="data:,">
+    <style>
+      body { margin: 0; width:100%; height:100%;  background-color:#000; }
+      html { width:100%; height:100%; background-color:#000; }
+
+      .embed-container iframe,
+      .embed-container object,
+      .embed-container embed {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="embed-container">
+        <div id="player"></div>
+    </div>
+    <script>
+      // This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var player;
+      function onYouTubeIframeAPIReady() {
+        // native Android callback to instantiate player
+        JSBridge.instantiatePlayer();
+      }
+      function onPlayerReady(event) {
+        // the duration is used to compute video stop reason in the case of playback stops at the
+        // end of the video
+        getDuration();
+        JSBridge.onPlayerReady();
+      }
+      function onPlayerStateChange(event) {
+        // Get and set current playing so that we can seek to it once player reloads.
+        getCurrentTimeWithEvent(event);
+        // Trigger native Android callback for player state change handling.
+        JSBridge.onPlayerStateChange(event.data, player.getVideoUrl());
+      }
+      function onError(event) {
+        // Trigger native Android callback when we get an error. We also communicate the videoURL as
+        // well.
+        JSBridge.onError(event.data, player.getVideoUrl());
+      }
+      function getDuration() {
+        duration = player.getDuration();
+        JSBridge.setDuration(duration);
+      }
+      function getCurrentTimeWithEvent(event) {
+        currentTime = player.getCurrentTime();
+        JSBridge.setCurrentTime(currentTime, event.data);
+      }
+      window.onresize = function() {
+        player.setSize(window.innerWidth, window.innerHeight);
+      }
+    </script>
+  </body>
+</html>

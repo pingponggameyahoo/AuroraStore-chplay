@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Extracted from Google Play Store base.apk (PersistentNavItem SEARCH, 0x7f0804f0) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M136.3,136.3C136.3,136.3 204.2,204.4 204.2,204.4"
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="20"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M134.15,133.75C112.65,155.25 77.85,155.25 56.35,133.75C34.85,112.35 34.85,77.45 56.35,56.05C77.85,34.55 112.65,34.55 134.15,56.05C155.65,77.45 155.65,112.35 134.15,133.75"
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="20"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

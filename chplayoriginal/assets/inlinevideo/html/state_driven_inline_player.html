@@ -1,0 +1,546 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <!-- Avoid a network request to fetch a favicon. -->
+    <link rel="icon" href="data:," />
+    <style>
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+      }
+      html {
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+      }
+
+      .embed-container iframe,
+      .embed-container object,
+      .embed-container embed {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="embed-container">
+      <div id="player-with-controls" style="display: none"></div>
+      <div id="player-without-controls" style="display: none"></div>
+    </div>
+    <script>
+      // This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement("script");
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName("script")[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      var PLAYER_WITH_CONTROLS_DIV_ID = "player-with-controls";
+      var PLAYER_WITHOUT_CONTROLS_DIV_ID = "player-without-controls";
+      var playerWithControls;
+      var playerWithoutControls;
+      var cachedSerializedHouseBrandPlayerResponse = "";
+
+      function createNewPlayerInstance(playerDiv, playerControls, eid) {
+        if (eid) {
+          return new YT.Player(playerDiv, {
+            height: window.innerHeight,
+            width: window.innerWidth,
+            embedConfig: {'enc': eid},
+            playerVars: {
+              controls: playerControls,
+              external_fullscreen: 1,
+              rel: 0
+            },
+            events: {
+              onReady: onPlayerReady,
+              onStateChange: onPlayerStateChange,
+              onError: onError
+            },
+          });
+        } else {
+          return new YT.Player(playerDiv, {
+            height: window.innerHeight,
+            width: window.innerWidth,
+            playerVars: {
+              controls: playerControls,
+              external_fullscreen: 1,
+              rel: 0
+            },
+            events: {
+              onReady: onPlayerReady,
+              onStateChange: onPlayerStateChange,
+              onError: onError
+            },
+          });
+        }
+      }
+
+      // Returns the current video id or "" if it is not available.
+      function getCurrentVideoIdOrBlank(player) {
+        try {
+          return player.getVideoData().video_id;
+        } catch(error) {
+          return "";
+        }
+      }
+
+      // Returns if the player is muted or not if available, otherwise returns true.
+      function isPlayerMutedOrTrue(player) {
+        try {
+          return player.isMuted();
+        } catch(error) {
+          return true;
+        }
+      }
+
+      // Return the current time of the video loaded on [player] if available, otherwise return 0.
+      function getCurrentTimeOrZero(player) {
+        try {
+          return player.getCurrentTime();
+        } catch(error) {
+          return 0;
+        }
+      }
+
+      // Return the duration of the video loaded on [player] if available, otherwise return -1.
+      function getDurationOrNegativeOne(player) {
+        try {
+          return player.getDuration();
+        } catch(error) {
+          return -1;
+        }
+      }
+
+      // Create the player
+      function createPlayer(isRequestForCreatingPlayerWithControls, eid) {
+        if(isRequestForCreatingPlayerWithControls) {
+          if (playerWithControls) {
+            // If already created, destroy the existing player and create a new one.
+            playerWithControls.destroy();
+            playerWithControls = null;
+          }
+          playerWithControls = createNewPlayerInstance(PLAYER_WITH_CONTROLS_DIV_ID, 1, eid);
+        } else {
+          if (playerWithoutControls) {
+            // If already created, destroy the existing player and create a new one.
+            playerWithoutControls.destroy();
+            playerWithoutControls = null;
+          }
+          playerWithoutControls = createNewPlayerInstance(PLAYER_WITHOUT_CONTROLS_DIV_ID, 0, eid);
+        }
+      }
+
+      // Get the player for which this event is triggered
+      function getPlayerForEvent(event) {
+        var eventID = event.target.id;
+        var playerWithControlsId = playerWithControls.id;
+        if (playerWithControlsId && eventID === playerWithControlsId) {
+          return playerWithControls;
+        } else {
+          return playerWithoutControls;
+        }
+      }
+
+      // Determines the player div for a given player type
+      function getPlayerDiv(playerType) {
+        if (playerType === playerWithControls) {
+          return PLAYER_WITH_CONTROLS_DIV_ID;
+        } else {
+          return PLAYER_WITHOUT_CONTROLS_DIV_ID;
+        }
+      }
+
+      // Pauses the video player
+      function pauseVideo() {
+        // Pause playing the video on both players
+        if (playerWithControls && playerWithControls.pauseVideo) {
+          playerWithControls.pauseVideo();
+          togglePlayerVisibility(
+            playerWithControls, // player
+            false // hide the player
+          );
+        }
+        if (playerWithoutControls && playerWithoutControls.pauseVideo) {
+          playerWithoutControls.pauseVideo();
+          togglePlayerVisibility(
+            playerWithoutControls, // player
+            false // hide the player
+          );
+        }
+      }
+
+      /**
+       * Toggles the visibility of the video player
+       *
+       * @param player the player to toggle the visibility of
+       * @param showPlayer if we want to show the player or not
+       */
+      function togglePlayerVisibility(player, showPlayer) {
+        if (player) {
+          var playerDivStyle = document.getElementById(getPlayerDiv(player)).style;
+          if (showPlayer) {
+            // Equivalent to android.view.VISIBLE
+            playerDivStyle.display = "block";
+          } else {
+            // Equivalent to android.view.GONE
+            playerDivStyle.display = "none";
+          }
+        }
+      }
+
+      /**
+       * Play a video on the webview player
+       *
+       * @param videoId of the requested video
+       * @param mutedPlayer if we want to play the video muted or not
+       * @param showPlayerControls if we want to show the player controls or not
+       * @param startTimeInSeconds the time from which we want to start playing the video
+       * @param serializedHouseBrandPlayerResponse the serialized house brand player response. This is unused. But needed for the native layer for comparison purposes.
+       * @param eid the embedded id of the video, this is required for playing the video.
+       */
+      function playVideo(videoId, mutedPlayer, showPlayerControls, startTimeInSeconds, serializedHouseBrandPlayerResponse, eid) {
+        var activePlayer;
+        var inactivePlayer;
+        if (showPlayerControls) {
+          activePlayer = playerWithControls;
+          inactivePlayer = playerWithoutControls;
+        } else {
+          activePlayer = playerWithoutControls;
+          inactivePlayer = playerWithControls;
+        }
+        cachedSerializedHouseBrandPlayerResponse = serializedHouseBrandPlayerResponse;
+        pauseVideo();
+        if (activePlayer) {
+          togglePlayerVisibility(
+            activePlayer, // player
+            true // show the player
+          );
+          if (eid) {
+            // See doc. https://developers.google.com/youtube/iframe_api_reference#Queueing_Functions
+            activePlayer.loadVideoById({
+              videoId: videoId,
+              startSeconds: startTimeInSeconds,
+              embedConfig: {'enc': eid},
+            });
+          } else {
+            // Videos automatically play on load.
+            // Documentation: https://screenshot.googleplex.com/87KeoEbha9R3QSF
+            activePlayer.loadVideoById(videoId, startTimeInSeconds);
+          }
+          // Mute the active video player if requested after loading the video/ playing the video.
+          if (mutedPlayer) {
+            activePlayer.mute();
+          } else {
+            activePlayer.unMute();
+          }
+        }
+      }
+
+      /**
+       * Seeks a video to a specific time in the webview player
+       *
+       * @param videoId of the requested video
+       * @param serializedHouseBrandPlayerResponse (unused) the serialized string of the house brand player
+       * @param seconds the time to which we want to seek the video
+       */
+      function seekTo(
+        videoId,
+        serializedHouseBrandPlayerResponse,
+        seconds
+      ) {
+        var player = getCurrentVideoPlayer();
+        if (
+          player &&
+          getCurrentVideoIdOrBlank(player) === videoId &&
+          serializedHouseBrandPlayerResponse === cachedSerializedHouseBrandPlayerResponse &&
+          player.seekTo
+        ) {
+          var duration = getDurationOrNegativeOne(player);
+          if (duration > 0) {
+            // We subtract 5 seconds from the duration to avoid seeking to the end of the video.
+            seconds = Math.max(0, Math.min(seconds, duration - 5));
+          }
+          player.seekTo(seconds);
+          // If a video is paused, the video will not play without calling play video
+          player.playVideo();
+        }
+      }
+
+      /**
+       * Seeks a video forward by a specific duration in the webview player
+       *
+       * @param videoId of the requested video
+       * @param serializedHouseBrandPlayerResponse (unused) the serialized string of the house brand player
+       * @param seekBySeconds the duration to seek forward in seconds
+       */
+      function seekForward(
+        videoId,
+        serializedHouseBrandPlayerResponse,
+        seekBySeconds
+      ) {
+        var player = getCurrentVideoPlayer();
+        if (
+          player &&
+          getCurrentVideoIdOrBlank(player) === videoId &&
+          serializedHouseBrandPlayerResponse === cachedSerializedHouseBrandPlayerResponse &&
+          player.seekTo
+        ) {
+          var duration = getDurationOrNegativeOne(player);
+          var targetTime = getCurrentTimeOrZero(player) + seekBySeconds;
+          if (duration > 0) {
+            // We subtract 5 seconds from the duration to avoid seeking to the end of the video.
+            targetTime = Math.max(0, Math.min(targetTime, duration - 5));
+          }
+          player.seekTo(targetTime);
+        }
+      }
+
+      /**
+       * Seeks a video backward by a specific duration in the webview player
+       *
+       * @param videoId of the requested video
+       * @param serializedHouseBrandPlayerResponse (unused) the serialized string of the house brand player
+       * @param seekBySeconds the duration to seek backward in seconds
+       */
+      function seekBackward(
+        videoId,
+        serializedHouseBrandPlayerResponse,
+        seekBySeconds
+      ) {
+        var player = getCurrentVideoPlayer();
+        if (
+          player &&
+          getCurrentVideoIdOrBlank(player) === videoId &&
+          serializedHouseBrandPlayerResponse === cachedSerializedHouseBrandPlayerResponse &&
+          player.seekTo
+        ) {
+          var targetTime = getCurrentTimeOrZero(player) - seekBySeconds;
+          targetTime = Math.max(0, targetTime);
+          player.seekTo(targetTime);
+        }
+      }
+
+       /**
+       * Force Play a video on the webview player. This is a lightweight version of playVideo. It
+       * directly plays the video on the requested video player. Unlike the [playVideo] method, this
+       * method does not bother about pausing the players or toggling the player's visibility.
+       *
+       * @param showPlayerControls if we want to show the player controls or not
+       */
+      function forcePlayVideo(showPlayerControls) {
+        var player;
+        if (showPlayerControls) {
+          player = playerWithControls;
+        } else {
+          player = playerWithoutControls;
+        }
+        if (player.playVideo) {
+          player.playVideo();
+        }
+      }
+
+      // Stop playing the video on the webview player
+      function stopVideo() {
+        // Stop playing the video on both players
+        if (playerWithControls && playerWithControls.stopVideo) {
+          playerWithControls.stopVideo();
+          togglePlayerVisibility(
+            playerWithControls, // player
+            false // hide the player
+          );
+        }
+        if (playerWithoutControls && playerWithoutControls.stopVideo) {
+          playerWithoutControls.stopVideo();
+          togglePlayerVisibility(
+            playerWithoutControls, // player
+            false // hide the player
+          );
+        }
+      }
+
+      function onYouTubeIframeAPIReady() {
+        // native Android callback to instantiate player
+        WebViewBasedYoutubeVideoPlayerJSBridge.onYouTubeIframeAPIReady();
+      }
+
+      // Trigger native Android callback when we the player is ready
+      function onPlayerReady(event) {
+        // Determine for which player we get this event
+        var player = getPlayerForEvent(event);
+        if (player) {
+          // Once we determine which player we get this event, we can trigger the native Android
+          // callback
+          var videoId = getCurrentVideoIdOrBlank(player);
+          var isMuted = isPlayerMutedOrTrue(player);
+          var playerControlsVisible = player === playerWithControls;
+          WebViewBasedYoutubeVideoPlayerJSBridge.onPlayerReady(
+            videoId, // video id loaded on the video player
+            cachedSerializedHouseBrandPlayerResponse, // serializedHouseBrandPlayerResponse
+            isMuted, // if the video player is muted or not
+            playerControlsVisible // if the video player's controls are visible
+          );
+        }
+      }
+
+      // Trigger native Android callback when we the player state changes
+      function onPlayerStateChange(event) {
+        // Get and set current playing so that we can seek to it once player reloads.
+        // The duration is used to compute video stop reason in the case of playback stops at the
+        // end of the video
+        var player = getPlayerForEvent(event);
+        if (player) {
+          var currentVideoPlayedTime = getCurrentTimeOrZero(player);
+          var videoDuration = getDurationOrNegativeOne(player);
+          var isMuted = isPlayerMutedOrTrue(player);
+          var videoId = getCurrentVideoIdOrBlank(player);
+          var playerControlsVisible = player === playerWithControls;
+
+          // Trigger native Android callback for player state change handling.
+          WebViewBasedYoutubeVideoPlayerJSBridge.onPlayerStateChange(
+            event.data, // state change type
+            currentVideoPlayedTime, // current video played time
+            videoDuration, // video duration
+            videoId, // videoId. Blank if undefined or null.
+            cachedSerializedHouseBrandPlayerResponse, // serializedHouseBrandPlayerResponse
+            isMuted, // is player muted
+            playerControlsVisible // are player controls visible
+          );
+        }
+      }
+
+      // Trigger native Android callback when we get an error
+      function onError(event) {
+        var player = getPlayerForEvent(event);
+        if (player) {
+          var isMuted = isPlayerMutedOrTrue(player);
+          var videoId = getCurrentVideoIdOrBlank(player);
+          var playerControlsVisible = player === playerWithControls;
+          // Trigger native Android callback when we get an error. We also communicate the videoId as
+          // well.
+          WebViewBasedYoutubeVideoPlayerJSBridge.onError(
+            event.data, // error code
+            videoId, // videoId
+            cachedSerializedHouseBrandPlayerResponse, // serializedHouseBrandPlayerResponse
+            isMuted, // is player muted
+            playerControlsVisible // are player controls visible
+          );
+        }
+      }
+
+      // Get the duration of the video player for a given event
+      function getDuration(event) {
+        // Get the correct player
+        var player = getPlayerForEvent(event);
+        if (player && player.getDuration) {
+          // Check if player exists
+          var duration = player.getDuration();
+          WebViewBasedYoutubeVideoPlayerJSBridge.setDuration(duration);
+        }
+      }
+
+      // Get the current time of the video player for a given event
+      function getCurrentTimeWithEvent(event) {
+        // Get the correct player
+        var player = getPlayerForEvent(event);
+        if (player && player.getCurrentTime) {
+          var currentTime = player.getCurrentTime();
+          WebViewBasedYoutubeVideoPlayerJSBridge.setCurrentTime(currentTime);
+        }
+      }
+
+      // Return the current video player visible on screen
+      function getCurrentVideoPlayer() {
+        // We first determine which player div is visible
+        var isPlayerWithControlsVisible = playerWithControls
+          ? document.getElementById(getPlayerDiv(playerWithControls)).style.display !== 'none'
+          : false;
+        var isPlayerWithoutControlsVisible = playerWithoutControls
+          ? document.getElementById(getPlayerDiv(playerWithoutControls)).style.display !== 'none'
+          : false;
+
+        // We then determine which player type is visible
+        return isPlayerWithControlsVisible
+          ? playerWithControls
+          : (isPlayerWithoutControlsVisible ? playerWithoutControls : null);
+      }
+
+      // Determine if the video player is muted or not
+      function isPlayerMuted() {
+        var player = getCurrentVideoPlayer();
+
+        if (player && getCurrentVideoIdOrBlank(player).trim() !== "" && player.isMuted) {
+          // If a video player is visible, we determine if it is muted or not
+          var videoId = getCurrentVideoIdOrBlank(player);
+          var isPlayerMuted = player.isMuted();
+          WebViewBasedYoutubeVideoPlayerJSBridge.videoPlayerMutedStatus(videoId, isPlayerMuted);
+        }
+      }
+
+      // Trigger native Android callback to display the video in full screen mode
+      function openYouTubeInFullscreen() {
+        // Full screen YT activity can only be opened if the player with controls is visible
+        var isPlayerWithControlsVisible = playerWithControls
+          ? document.getElementById(getPlayerDiv(playerWithControls)).style.display === 'block'
+          : false;
+
+        if (isPlayerWithControlsVisible) {
+          var currentVideoPlayedTime = getCurrentTimeOrZero(playerWithControls);
+          var videoId = getCurrentVideoIdOrBlank(playerWithControls);
+
+          // Trigger native Android callback to display the video in full screen mode
+          if (videoId && videoId.trim() !== "") {
+            WebViewBasedYoutubeVideoPlayerJSBridge.openYouTubeInFullscreen(
+              currentVideoPlayedTime, // current video played time
+              videoId
+            );
+          }
+        }
+      }
+
+      // Return the current video time and video duration from the currently displayed video player
+      function getCurrentVideoTimeAndDuration() {
+        var player = getCurrentVideoPlayer();
+        try {
+          var currentVideoTime = player.getCurrentTime();
+          var videoDuration = player.getDuration();
+          return JSON.stringify({currentTime: currentVideoTime, duration: videoDuration});
+        } catch(error) {
+          return "";
+        }
+      }
+
+      // Pause playing the video on the currently displayed video player
+      function pauseDisplayedVideo() {
+        var player = getCurrentVideoPlayer();
+        if (player && player.pauseVideo) {
+          player.pauseVideo();
+        }
+      }
+
+      // Resume playing the video on the currently displayed video player
+      function resumeDisplayedVideo() {
+        var player = getCurrentVideoPlayer();
+        if (player && player.playVideo) {
+          player.playVideo();
+        }
+      }
+
+      window.onresize = function () {
+        if (playerWithControls && playerWithControls.setSize) {
+          playerWithControls.setSize(window.innerWidth, window.innerHeight);
+        }
+        if (playerWithoutControls && playerWithoutControls.setSize) {
+          playerWithoutControls.setSize(window.innerWidth, window.innerHeight);
+        }
+      };
+    </script>
+  </body>
+</html>

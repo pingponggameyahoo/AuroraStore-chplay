@@ -71,28 +71,28 @@ private enum class MainNavItem(
 ) {
     GAMES(
         labelRes = R.string.title_games,
-        iconRes = R.drawable.ic_games,
+        iconRes = R.drawable.ic_play_nav_games,
         pagerPage = 0
     ),
     APPS(
         labelRes = R.string.title_apps,
-        iconRes = R.drawable.ic_apps,
+        iconRes = R.drawable.ic_play_nav_apps,
         pagerPage = 1
     ),
     SEARCH(
         labelRes = R.string.action_search,
-        iconRes = R.drawable.ic_round_search,
+        iconRes = R.drawable.ic_play_nav_search,
         destination = Destination.Search
     ),
     UPDATES(
         labelRes = R.string.title_nav_books,
-        iconRes = R.drawable.ic_nav_book,
+        iconRes = R.drawable.ic_play_nav_books,
         pagerPage = 2,
         showUpdateBadge = true
     ),
     YOU(
         labelRes = R.string.title_nav_you,
-        iconRes = R.drawable.ic_account,
+        iconRes = R.drawable.ic_play_nav_you,
         destination = Destination.Installed
     )
 }

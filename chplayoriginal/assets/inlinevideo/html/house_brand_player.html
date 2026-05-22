@@ -1,0 +1,451 @@
+<!-- go/hbp-client-onboarding -->
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <style>
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+      }
+      html {
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+      }
+
+      .embed-container iframe,
+      .embed-container object,
+      .embed-container embed {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div class="embed-container">
+      <div id="player"></div>
+    </div>
+
+    <script>
+      const PARAM_AUTOPLAY = "autoplay";
+      const PARAM_CONTROLS = "controls";
+      const PARAM_VIDEOID = "video_id";
+      const PARAM_HBENV = "hbenv";
+      const PARAM_MUTE = "mute";
+      const PARAM_PARTNERID = "partnerid";
+      const PARAM_PLAYER_RESPONSE = "player_response";
+      const PARAM_PLAYER_STYLE = "ps";
+      const PARAM_PLAYSINLINE = "playsinline";
+      const PARAM_EXTERNAL_FULLSCREEN = "external_fullscreen";
+      const PARAM_REL = "rel";
+      const PARAM_FETCH_HBPS_RESPONSE = "fetch_hbps_response";
+      const PARAM_USE_NATIVE_CONTROLS = "use_native_controls";
+      const PARAM_START_SECONDS = "startSeconds";
+
+      // 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement("script");
+
+      tag.src = "https://youtube.googleapis.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName("script")[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player;
+      var playerVars = {
+        [PARAM_AUTOPLAY]: 0,
+        [PARAM_CONTROLS]: 1,
+        [PARAM_USE_NATIVE_CONTROLS]: 0,
+        // [PARAM_HBENV]: "apps-elements", // TODO: Update this to the correct environment.
+        // [PARAM_PARTNERID]: "30", // TODO: Update this to the correct partner id.
+        [PARAM_PLAYER_STYLE]: "play-ads",
+        [PARAM_PLAYSINLINE]: 1,
+        // [PARAM_PRIVEMBED]: 1,
+        // [PARAM_EXTERNAL_FULLSCREEN]: 1,
+        [PARAM_REL]: 0, // Disable related videos.
+        // PARAM_FETCH_HBPS_RESPONSE: "false",
+      };
+      var hasControls = false;
+
+      function createNewPlayerInstance(eid) {
+        if (eid) {
+          return new YT.Player("player", {
+            height: window.innerHeight,
+            width: window.innerWidth,
+            host: "https://youtube.googleapis.com",
+            embedConfig: {"enc": eid}, // Providing EID
+            playerVars: playerVars,
+            events: {
+              onReady: onPlayerReady,
+              onStateChange: onPlayerStateChange,
+              onError: onError,
+            },
+          });
+        } else {
+          return new YT.Player("player", {
+            height: window.innerHeight,
+            width: window.innerWidth,
+            host: "https://youtube.googleapis.com",
+            playerVars: playerVars,
+            events: {
+              onReady: onPlayerReady,
+              onStateChange: onPlayerStateChange,
+              onError: onError,
+            },
+          });
+        }
+      }
+
+      function onYouTubeIframeAPIReady() {
+        // native Android callback to instantiate player
+        WebViewBasedYoutubeVideoPlayerJSBridge.onYouTubeIframeAPIReady();
+      }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+        if (!player) {
+          player = event.target;
+        }
+
+        var videoId = playerVars[PARAM_VIDEOID];
+        var isMuted = isPlayerMutedOrTrue(player);
+        var playerControlsVisible = hasControls;
+
+        WebViewBasedYoutubeVideoPlayerJSBridge.onPlayerReady(
+          videoId, // video id loaded on the video player
+          playerVars[PARAM_PLAYER_RESPONSE], // serialized HouseBrandPlayerResponse.
+          isMuted, // if the video player is muted or not
+          playerControlsVisible, // if the video player's controls are visible
+        );
+      }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      function onPlayerStateChange(event) {
+        // Get and set current playing so that we can seek to it once player reloads.
+        // The duration is used to compute video stop reason in the case of playback stops at the
+        // end of the video
+        var currentVideoPlayedTime = getCurrentTimeOrZero(player);
+        var videoDuration = getDurationOrNegativeOne(player);
+        var isMuted = isPlayerMutedOrTrue(player);
+        var videoId = playerVars[PARAM_VIDEOID];
+        var playerControlsVisible = hasControls;
+
+        // Trigger native Android callback for player state change handling.
+        WebViewBasedYoutubeVideoPlayerJSBridge.onPlayerStateChange(
+          event.data, // state change type
+          currentVideoPlayedTime, // current video played time
+          videoDuration, // video duration
+          videoId, // videoId. Blank if undefined or null.
+          playerVars[PARAM_PLAYER_RESPONSE], // serialized HouseBrandPlayerResponse.
+          isMuted, // is player muted
+          playerControlsVisible, // are player controls visible
+        );
+      }
+
+      function onError(event) {
+        var isMuted = isPlayerMutedOrTrue(player);
+        var videoId = playerVars[PARAM_VIDEOID];
+        var playerControlsVisible = hasControls;
+        // Trigger native Android callback when we get an error. We also communicate the videoId as
+        // well.
+        WebViewBasedYoutubeVideoPlayerJSBridge.onError(
+          event.data, // error code
+          videoId, // videoId
+          playerVars[PARAM_PLAYER_RESPONSE] ?? null, // serialized HouseBrandPlayerResponse.
+          isMuted, // is player muted
+          playerControlsVisible, // are player controls visible
+        );
+      }
+
+      function updateShowControls(shouldShowPlayerControls) {
+        if (!player) {
+          return;
+        }
+        if (shouldShowPlayerControls) {
+          player.showControls();
+        } else {
+          player.hideControls();
+        }
+        hasControls = shouldShowPlayerControls;
+      }
+
+      function copyWithoutKeys(originalObject, keysToRemove) {
+        const newObject = { ...originalObject }; // Create a shallow copy using spread syntax
+
+        for (const key of keysToRemove) {
+          delete newObject[key];
+        }
+
+        return newObject;
+      }
+
+      // Pauses the video on the currently displayed video player
+      function pauseDisplayedVideo() {
+        // Pause playing the video on the player if that method is available.
+        if (player && player.pauseVideo) {
+          player.pauseVideo();
+        }
+      }
+
+      // Resume playing the video on the currently displayed video player
+      function resumeDisplayedVideo() {
+        if (player && player.playVideo) {
+          player.playVideo();
+        }
+      }
+
+      // Returns if the player is muted or not if available, otherwise returns true.
+      function isPlayerMutedOrTrue(player) {
+        try {
+          return player.isMuted();
+        } catch (error) {
+          return true;
+        }
+      }
+
+      // Return the current time of the video loaded on [player] if available, otherwise return 0.
+      function getCurrentTimeOrZero(player) {
+        try {
+          return player.getCurrentTime();
+        } catch (error) {
+          return 0;
+        }
+      }
+
+      // Return the duration of the video loaded on [player] if available, otherwise return -1.
+      function getDurationOrNegativeOne(player) {
+        try {
+          return player.getDuration();
+        } catch (error) {
+          return -1;
+        }
+      }
+
+      // Returns the current video id or "" if it is not available.
+      function getCurrentVideoIdOrBlank() {
+        if (!playerVars[PARAM_VIDEOID] || playerVars[PARAM_VIDEOID] == null) {
+          return "";
+        }
+        return playerVars[PARAM_VIDEOID];
+      }
+
+      // Methods that are called form WebViewUtilsImpl.kt
+
+      // Create the player
+      function createPlayer(shouldShowPlayerControls, eid) {
+        if (!player) {
+          hasControls = shouldShowPlayerControls;
+          player = createNewPlayerInstance(eid);
+        }
+
+        updateShowControls(shouldShowPlayerControls);
+      }
+      /**
+       * Play a video on the webview player
+       *
+       * @param videoId of the requested video
+       * @param mutedPlayer if we want to play the video muted or not
+       * @param showPlayerControls if we want to show the player controls or not
+       * @param startTimeInSeconds the time from which we want to start playing the video
+       * @param serializedHouseBrandPlayerResponse (unused) the serialized string of the house brand player
+       * @param eid the embedded id of the video, this is required for playing the video.
+       */
+      function playVideo(
+        videoId,
+        mutedPlayer,
+        showPlayerControls,
+        startTimeInSeconds,
+        serializedHouseBrandPlayerResponse,
+        eid
+      ) {
+        if (!player) {
+          return;
+        }
+
+        updateShowControls(showPlayerControls);
+        var videoToPlay =
+          serializedHouseBrandPlayerResponse != null ? serializedHouseBrandPlayerResponse : videoId;
+        var currentVideoPlaying = playerVars[PARAM_PLAYER_RESPONSE] ?? playerVars[PARAM_VIDEOID];
+
+        if (serializedHouseBrandPlayerResponse != null) {
+          playerVars[PARAM_VIDEOID] = videoId;
+          playerVars[PARAM_PLAYER_RESPONSE] = serializedHouseBrandPlayerResponse;
+          // Play the video from the serialized HouseBrandPlayerResponse.
+          // Videos automatically play on load.
+          // Documentation: https://screenshot.googleplex.com/9qAcdtvhxEY9Ah5
+          var playerVarsToLoad = {
+            ...copyWithoutKeys(playerVars, [PARAM_VIDEOID]),
+            [PARAM_START_SECONDS]: startTimeInSeconds,
+          };
+          player.loadVideoByPlayerVars(playerVarsToLoad);
+        } else {
+          playerVars[PARAM_VIDEOID] = videoId;
+          delete playerVars[PARAM_PLAYER_RESPONSE];
+          // Videos automatically play on load.
+          // Documentation: https://screenshot.googleplex.com/87KeoEbha9R3QSF
+          player.loadVideoById(videoId, startTimeInSeconds);
+        }
+
+        // Mute the active video player if requested after loading the video/ playing the video.
+        if (mutedPlayer) {
+          player.mute();
+        } else {
+          player.unMute();
+        }
+      }
+
+      /**
+       * Seeks a video to a specific time in the webview player
+       *
+       * @param videoId of the requested video
+       * @param serializedHouseBrandPlayerResponse (unused) the serialized string of the house brand player
+       * @param seconds the time to which we want to seek the video
+       */
+      function seekTo(
+        videoId,
+        serializedHouseBrandPlayerResponse,
+        seconds
+      ) {
+        var cachedSerializedHouseBrandPlayerResponse = playerVars[PARAM_PLAYER_RESPONSE] ?? null;
+        if (
+          player &&
+          getCurrentVideoIdOrBlank() === videoId &&
+          serializedHouseBrandPlayerResponse === cachedSerializedHouseBrandPlayerResponse &&
+          player.seekTo
+        ) {
+          var duration = getDurationOrNegativeOne(player);
+          if (duration > 0) {
+            // We subtract 5 seconds from the duration to avoid seeking to the end of the video.
+            seconds = Math.max(0, Math.min(seconds, duration - 5));
+          }
+          player.seekTo(seconds);
+          // If a video is paused, the video will not play without calling play video
+          player.playVideo();
+        }
+      }
+
+      /**
+       * Seeks a video forward by a specific duration in the webview player
+       *
+       * @param videoId of the requested video
+       * @param serializedHouseBrandPlayerResponse (unused) the serialized string of the house brand player
+       * @param seekBySeconds the duration to seek forward in seconds
+       */
+      function seekForward(
+        videoId,
+        serializedHouseBrandPlayerResponse,
+        seekBySeconds
+      ) {
+        var cachedSerializedHouseBrandPlayerResponse = playerVars[PARAM_PLAYER_RESPONSE] ?? null;
+        if (
+          player &&
+          getCurrentVideoIdOrBlank() === videoId &&
+          serializedHouseBrandPlayerResponse === cachedSerializedHouseBrandPlayerResponse &&
+          player.seekTo
+        ) {
+          var duration = getDurationOrNegativeOne(player);
+          var targetTime = getCurrentTimeOrZero(player) + seekBySeconds;
+          if (duration > 0) {
+            // We subtract 5 seconds from the duration to avoid seeking to the end of the video.
+            targetTime = Math.max(0, Math.min(targetTime, duration - 5));
+          }
+          player.seekTo(targetTime);
+        }
+      }
+
+      /**
+       * Seeks a video backward by a specific duration in the webview player
+       *
+       * @param videoId of the requested video
+       * @param serializedHouseBrandPlayerResponse (unused) the serialized string of the house brand player
+       * @param seekBySeconds the duration to seek backward in seconds
+       */
+      function seekBackward(
+        videoId,
+        serializedHouseBrandPlayerResponse,
+        seekBySeconds
+      ) {
+        var cachedSerializedHouseBrandPlayerResponse = playerVars[PARAM_PLAYER_RESPONSE] ?? null;
+        if (
+          player &&
+          getCurrentVideoIdOrBlank() === videoId &&
+          serializedHouseBrandPlayerResponse === cachedSerializedHouseBrandPlayerResponse &&
+          player.seekTo
+        ) {
+          var targetTime = getCurrentTimeOrZero(player) - seekBySeconds;
+          targetTime = Math.max(0, targetTime);
+          player.seekTo(targetTime);
+        }
+      }
+
+      function stopVideo() {
+        player.stopVideo();
+      }
+
+      function isPlayerMuted() {
+        var videoId = getCurrentVideoIdOrBlank();
+        if (player && videoId.trim() !== "" && player.isMuted) {
+          // If a video player is visible, we determine if it is muted or not
+          var isPlayerMuted = player.isMuted();
+          WebViewBasedYoutubeVideoPlayerJSBridge.videoPlayerMutedStatus(videoId, isPlayerMuted);
+        }
+      }
+
+      function forcePlayVideo(showPlayerControls) {
+        updateShowControls(showPlayerControls);
+        player.playVideo();
+      }
+
+      // Trigger native Android callback to display the video in full screen mode
+      function openYouTubeInFullscreen() {
+        // Full screen YT activity can only be opened if the player with controls is visible
+        var playerControlsVisible = hasControls;
+
+        if (playerControlsVisible) {
+          var currentVideoPlayedTime = getCurrentTimeOrZero(player);
+          var videoId = playerVars[PARAM_VIDEOID];
+
+          // Trigger native Android callback to display the video in full screen mode
+          if (videoId && videoId.trim() !== "") {
+            WebViewBasedYoutubeVideoPlayerJSBridge.openYouTubeInFullscreen(
+              currentVideoPlayedTime, // current video played time
+              videoId,
+            );
+          }
+        }
+      }
+
+      // Return the current video time and video duration from the currently displayed video player
+      function getCurrentVideoTimeAndDuration() {
+        try {
+          var currentVideoTime = player.getCurrentTime();
+          var videoDuration = player.getDuration();
+          return JSON.stringify({ currentTime: currentVideoTime, duration: videoDuration });
+        } catch (error) {
+          return "";
+        }
+      }
+
+      // Prepare a video player if it is available
+      function maybePrepareVideoPlayer(playerResponse) {
+        playerVars[PARAM_PLAYER_RESPONSE] = playerResponse;
+      }
+
+      window.onresize = function () {
+        if (player && player.setSize) {
+          player.setSize(window.innerWidth, window.innerHeight);
+        }
+      };
+    </script>
+  </body>
+</html>
