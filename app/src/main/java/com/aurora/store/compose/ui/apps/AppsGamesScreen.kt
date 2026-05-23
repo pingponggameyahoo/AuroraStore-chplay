@@ -67,7 +67,7 @@ fun AppsGamesScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(R.color.play_store_content_background))
+            .background(colorResource(R.color.play_tab_container))
     ) {
         PlayStorePrimaryScrollableTabRow(
             selectedTabIndex = pagerState.currentPage

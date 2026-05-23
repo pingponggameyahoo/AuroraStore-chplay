@@ -49,9 +49,9 @@ fun PlayCompactAppRow(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = dimensionResource(R.dimen.spacing_small)),
+            .padding(vertical = dimensionResource(R.dimen.spacing_xsmall)),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
+        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_large))
     ) {
         AsyncImage(
             model = ImageRequest.Builder(context)

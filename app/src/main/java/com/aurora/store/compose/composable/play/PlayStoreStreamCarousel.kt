@@ -118,6 +118,9 @@ fun PlayStoreStreamCarousel(
     ) {
         item(key = "featured_${featuredCluster.id}") {
             PlayFeaturedCarousel(
+                modifier = Modifier.padding(
+                    top = dimensionResource(R.dimen.play_featured_top_spacing)
+                ),
                 apps = featuredCluster.clusterAppList,
                 onAppClick = onAppClick
             )
@@ -155,6 +158,7 @@ fun PlayStoreStreamCarousel(
 @Composable
 private fun PlayFeaturedCarousel(
     apps: List<App>,
+    modifier: Modifier = Modifier,
     onAppClick: (App) -> Unit
 ) {
     val configuration = LocalConfiguration.current
@@ -163,6 +167,7 @@ private fun PlayFeaturedCarousel(
     val cardWidth = (configuration.screenWidthDp.dp - horizontalInset * 2)
 
     LazyRow(
+        modifier = modifier,
         contentPadding = PaddingValues(horizontal = horizontalInset),
         horizontalArrangement = Arrangement.spacedBy(cardSpacing)
     ) {
@@ -208,32 +213,27 @@ private fun PlayTripleColumnCarousel(
     LazyRow(
         state = rowState,
         contentPadding = PaddingValues(horizontal = horizontalInset),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
+        horizontalArrangement = Arrangement.spacedBy(
+            dimensionResource(R.dimen.play_triple_column_spacing)
+        )
     ) {
         itemsIndexed(
             items = pages,
             key = { index, _ -> "${cluster.id}_page_$index" }
         ) { _, pageApps ->
-            Card(
-                modifier = Modifier.width(columnWidth),
-                shape = RoundedCornerShape(dimensionResource(R.dimen.play_featured_card_corner)),
-                colors = CardDefaults.cardColors(
-                    containerColor = colorResource(R.color.play_store_card_surface)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            Column(
+                modifier = Modifier
+                    .width(columnWidth)
+                    .padding(horizontal = dimensionResource(R.dimen.spacing_xsmall)),
+                verticalArrangement = Arrangement.spacedBy(
+                    dimensionResource(R.dimen.play_compact_row_spacing)
+                )
             ) {
-                Column(
-                    modifier = Modifier.padding(
-                        horizontal = dimensionResource(R.dimen.spacing_medium),
-                        vertical = dimensionResource(R.dimen.spacing_small)
+                pageApps.forEach { app ->
+                    PlayCompactAppRow(
+                        app = app,
+                        onClick = { onAppClick(app) }
                     )
-                ) {
-                    pageApps.forEach { app ->
-                        PlayCompactAppRow(
-                            app = app,
-                            onClick = { onAppClick(app) }
-                        )
-                    }
                 }
             }
         }

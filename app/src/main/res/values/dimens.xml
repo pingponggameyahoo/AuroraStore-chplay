@@ -80,7 +80,10 @@
     <dimen name="play_featured_hero_height">188dp</dimen>
     <dimen name="play_featured_card_spacing">12dp</dimen>
     <dimen name="play_featured_card_horizontal_inset">16dp</dimen>
-    <dimen name="play_triple_column_width">292dp</dimen>
-    <dimen name="play_compact_app_icon">48dp</dimen>
-    <dimen name="play_section_spacing">8dp</dimen>
+    <dimen name="play_featured_top_spacing">12dp</dimen>
+    <dimen name="play_triple_column_width">300dp</dimen>
+    <dimen name="play_triple_column_spacing">12dp</dimen>
+    <dimen name="play_compact_app_icon">56dp</dimen>
+    <dimen name="play_compact_row_spacing">14dp</dimen>
+    <dimen name="play_section_spacing">12dp</dimen>
 </resources>
