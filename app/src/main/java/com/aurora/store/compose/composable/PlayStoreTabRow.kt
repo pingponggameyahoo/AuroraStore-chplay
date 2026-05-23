@@ -74,7 +74,7 @@ fun PlayStorePrimaryScrollableTabRow(
         modifier = modifier.fillMaxWidth(),
         containerColor = colorResource(R.color.play_tab_container),
         contentColor = colorResource(R.color.play_tab_unselected),
-        edgePadding = dimensionResource(R.dimen.spacing_small),
+        edgePadding = dimensionResource(R.dimen.play_home_content_inset),
         divider = {
             HorizontalDivider(
                 thickness = 1.dp,
@@ -104,7 +104,7 @@ fun PlayStoreSecondaryScrollableTabRow(
         modifier = modifier.fillMaxWidth(),
         containerColor = colorResource(R.color.play_tab_container),
         contentColor = colorResource(R.color.play_tab_unselected),
-        edgePadding = dimensionResource(R.dimen.spacing_small),
+        edgePadding = dimensionResource(R.dimen.play_home_content_inset),
         divider = {
             HorizontalDivider(
                 thickness = 1.dp,
