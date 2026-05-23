@@ -13,7 +13,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -162,14 +162,16 @@ private fun PlayDetailsSectionHeader(
                 bottom = dimensionResource(R.dimen.spacing_small)
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Normal,
             color = colorResource(R.color.play_details_primary_text),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = dimensionResource(R.dimen.spacing_small))
         )
         PlayDetailsNavigateButton(onClick = onNavigate)
     }
@@ -178,20 +180,22 @@ private fun PlayDetailsSectionHeader(
 @Composable
 private fun PlayDetailsNavigateButton(onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
-    val buttonSize = dimensionResource(R.dimen.play_details_nav_button_size)
+    val buttonWidth = dimensionResource(R.dimen.play_details_nav_button_width)
+    val buttonHeight = dimensionResource(R.dimen.play_details_nav_button_height)
     val iconSize = dimensionResource(R.dimen.play_details_nav_icon_size)
+    val pillShape = RoundedCornerShape(percent = 50)
 
     Box(
         modifier = Modifier
-            .defaultMinSize(minWidth = buttonSize, minHeight = buttonSize)
-            .size(buttonSize)
-            .clip(CircleShape)
+            .width(buttonWidth)
+            .height(buttonHeight)
+            .clip(pillShape)
             .background(colorResource(R.color.play_details_nav_button_background))
             .clickable(
                 interactionSource = interactionSource,
                 indication = ripple(
                     bounded = true,
-                    radius = buttonSize / 2
+                    radius = buttonHeight / 2
                 ),
                 onClick = onClick
             ),

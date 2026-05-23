@@ -91,7 +91,9 @@
     <dimen name="play_details_info_divider_height">40dp</dimen>
     <dimen name="play_details_install_button_height">48dp</dimen>
     <dimen name="play_details_install_button_corner">24dp</dimen>
-    <dimen name="play_details_nav_button_size">48dp</dimen>
-    <dimen name="play_details_nav_icon_size">24dp</dimen>
+    <!-- Vertically elongated pill (circle squeezed on left/right), like Play details nav -->
+    <dimen name="play_details_nav_button_width">36dp</dimen>
+    <dimen name="play_details_nav_button_height">40dp</dimen>
+    <dimen name="play_details_nav_icon_size">20dp</dimen>
     <dimen name="play_details_section_horizontal_padding">16dp</dimen>
 </resources>
