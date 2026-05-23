@@ -155,8 +155,7 @@ fun PlayStoreRatingsReviewsSection(
                 review = review,
                 horizontalPadding = horizontalPadding,
                 primaryText = primaryText,
-                secondaryText = secondaryText,
-                linkColor = linkColor
+                secondaryText = secondaryText
             )
         }
     }
@@ -370,8 +369,7 @@ private fun PlayStoreReviewItem(
     review: Review,
     horizontalPadding: androidx.compose.ui.unit.Dp,
     primaryText: Color,
-    secondaryText: Color,
-    linkColor: Color
+    secondaryText: Color
 ) {
     val context = LocalContext.current
     val avatarSize = dimensionResource(R.dimen.play_review_avatar_size)
@@ -475,27 +473,30 @@ private fun PlayStoreReviewItem(
             )
         }
 
-        Text(
-            text = stringResource(R.string.play_review_helpful_question),
-            modifier = Modifier.padding(top = 16.dp),
-            style = MaterialTheme.typography.bodyMedium,
-            fontSize = 14.sp,
-            lineHeight = 20.sp,
-            color = primaryText
-        )
         Row(
-            modifier = Modifier.padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            Text(
+                text = stringResource(R.string.play_review_helpful_question),
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                color = primaryText
+            )
             PlayReviewHelpfulChip(
                 label = stringResource(R.string.play_review_helpful_yes),
                 borderColor = chipBorder,
-                textColor = linkColor
+                textColor = primaryText
             )
             PlayReviewHelpfulChip(
                 label = stringResource(R.string.play_review_helpful_no),
                 borderColor = chipBorder,
-                textColor = linkColor
+                textColor = primaryText
             )
         }
     }
