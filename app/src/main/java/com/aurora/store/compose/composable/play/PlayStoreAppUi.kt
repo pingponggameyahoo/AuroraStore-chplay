@@ -6,7 +6,6 @@
 package com.aurora.store.compose.composable.play
 
 import com.aurora.gplayapi.data.models.App
-import com.aurora.store.util.CommonUtil
 import java.util.Locale
 
 private val PLAY_GENRE_ENUM_REGEX = Regex("^[A-Z][A-Z0-9_]{2,}$")
@@ -53,10 +52,36 @@ internal fun App.playRatingDisplay(): String? {
     return rating.replace('.', ',')
 }
 
-internal fun App.playFileSizeLabel(): String? {
-    val downloadSize = size
-    if (downloadSize <= 0L) return null
-    return CommonUtil.addSiPrefix(downloadSize)
+/** Line 3: file size as "60 MB" / "1,3 GB"; placeholder 50 MB–2 GB when unknown. */
+internal fun App.playFileSizeLabel(): String {
+    val bytes = if (size > 0L) size else playPlaceholderSizeBytes()
+    return formatPlayFileSize(bytes)
+}
+
+private fun App.playPlaceholderSizeBytes(): Long {
+    val minBytes = 50L * 1024 * 1024
+    val maxBytes = 2L * 1024 * 1024 * 1024
+    val span = maxBytes - minBytes
+    val seed = (packageName.hashCode().toLong() and 0xFFFFFFFFL)
+    return minBytes + (seed % span)
+}
+
+private fun formatPlayFileSize(bytes: Long): String {
+    val mb = bytes.toDouble() / (1024.0 * 1024.0)
+    return if (mb < 1024.0) {
+        "${formatPlaySizeNumber(mb)} MB"
+    } else {
+        "${formatPlaySizeNumber(mb / 1024.0)} GB"
+    }
+}
+
+private fun formatPlaySizeNumber(value: Double): String {
+    val locale = Locale.getDefault()
+    return if (value >= 100 || value == value.toLong().toDouble()) {
+        value.toLong().toString()
+    } else {
+        String.format(locale, "%.1f", value).replace('.', ',')
+    }
 }
 
 internal fun App.developerMetaLine(): String = buildList {

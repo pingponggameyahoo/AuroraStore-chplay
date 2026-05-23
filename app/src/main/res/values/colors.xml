@@ -42,6 +42,6 @@
     <color name="play_store_text_secondary">#5F6368</color>
     <color name="play_store_featured_badge">#FCE4EC</color>
     <color name="play_store_featured_badge_text">#C2185B</color>
-    <color name="play_rating_badge_background">#E8F0FE</color>
-    <color name="play_rating_badge_text">#0B57D0</color>
+    <color name="play_rating_badge_background">#F3F6FC</color>
+    <color name="play_rating_badge_text">#1F1F1F</color>
 </resources>

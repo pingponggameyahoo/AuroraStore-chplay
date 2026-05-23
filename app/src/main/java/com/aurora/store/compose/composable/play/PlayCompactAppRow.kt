@@ -95,15 +95,13 @@ fun PlayCompactAppRow(
                 if (rating != null) {
                     PlayRatingBadge(rating = rating)
                 }
-                if (fileSize != null) {
-                    Text(
-                        text = fileSize,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colorResource(R.color.play_store_text_secondary),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                Text(
+                    text = fileSize,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colorResource(R.color.play_store_text_secondary),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }

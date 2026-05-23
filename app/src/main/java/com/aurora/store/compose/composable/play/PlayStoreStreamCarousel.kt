@@ -54,7 +54,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 private const val LOAD_MORE_THRESHOLD = 2
 private const val TRIPLE_ROW_PAGE_SIZE = 3
 /** Fraction of the next column's icon visible at the right edge (Play home peek). */
-private const val TRIPLE_COLUMN_PEEK_ICON_FRACTION = 0.10f
+/** ~30% of next column icon visible (Play home peek; was 10% + 20% more). */
+private const val TRIPLE_COLUMN_PEEK_ICON_FRACTION = 0.30f
 
 @Composable
 fun PlayStoreStreamCarousel(
