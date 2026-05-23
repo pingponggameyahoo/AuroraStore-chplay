@@ -26,9 +26,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.aurora.store.compose.composable.play.playDetailsMetaTagLine
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
@@ -123,12 +128,17 @@ fun Details(
                 inProgress = state.inProgress(),
                 progress = state.progress()
             )
-            Column(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_small))) {
+            Column(
+                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_small)),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
                 Text(
                     text = app.displayName,
                     style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    color = colorResource(R.color.play_details_primary_text)
                 )
                 Text(
                     modifier = Modifier
@@ -137,8 +147,18 @@ fun Details(
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.primary
+                    color = colorResource(R.color.play_nav_selected)
                 )
+                app.playDetailsMetaTagLine(context)?.let { metaLine ->
+                    Text(
+                        text = metaLine,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 12.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        color = colorResource(R.color.play_store_text_secondary)
+                    )
+                }
                 AnimatedContent(targetState = state::class) { cState ->
                     when (cState) {
                         AppState.Updatable::class -> UpdatableVersion()

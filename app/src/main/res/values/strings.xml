@@ -273,6 +273,7 @@
     <string name="play_details_downloads_label">"Downloads"</string>
     <string name="play_details_installs_more_than">"More than %1$s"</string>
     <string name="play_details_age_fallback">"Content rating"</string>
+    <string name="play_details_info_icon_cd">"More information"</string>
     <string name="tab_top_charts">"Top charts"</string>
     <string name="tab_top_free">"Top free"</string>
     <string name="tab_top_grossing">"Top grossing"</string>

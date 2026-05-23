@@ -43,9 +43,6 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
-import com.aurora.store.util.CommonUtil
-import java.text.NumberFormat
-import java.util.Locale
 
 private val PLAY_AGE_BADGE_REGEX = Regex("""(\d+\+)""")
 
@@ -89,6 +86,45 @@ fun PlayStoreDetailsInfoBar(
                     onContentRatingInfoClick = onContentRatingInfoClick
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun PlayDetailsSubtitleRow(
+    text: String,
+    showInfoIcon: Boolean,
+    onInfoClick: (() -> Unit)?
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        Text(
+            text = text,
+            fontSize = 12.sp,
+            lineHeight = 16.sp,
+            fontWeight = FontWeight.Normal,
+            color = colorResource(R.color.play_details_secondary_text),
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
+        )
+        if (showInfoIcon) {
+            Icon(
+                painter = painterResource(R.drawable.ic_play_info_outline),
+                contentDescription = stringResource(R.string.play_details_info_icon_cd),
+                modifier = Modifier
+                    .requiredSize(12.dp)
+                    .then(
+                        if (onInfoClick != null) {
+                            Modifier.clickable(onClick = onInfoClick)
+                        } else {
+                            Modifier
+                        }
+                    ),
+                tint = colorResource(R.color.play_details_info_icon)
+            )
         }
     }
 }
@@ -163,23 +199,12 @@ private fun PlayDetailsStatCell(
                 }
 
                 is PlayDetailsPrimary.DownloadSize -> {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_play_details_download),
-                            contentDescription = null,
-                            modifier = Modifier.requiredSize(20.dp),
-                            tint = colorResource(R.color.play_details_primary_text)
-                        )
-                        Text(
-                            text = primary.sizeLabel,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = colorResource(R.color.play_details_primary_text)
-                        )
-                    }
+                    Icon(
+                        painter = painterResource(R.drawable.ic_play_details_download),
+                        contentDescription = primary.sizeLabel,
+                        modifier = Modifier.requiredSize(20.dp),
+                        tint = colorResource(R.color.play_details_primary_text)
+                    )
                 }
 
                 is PlayDetailsPrimary.Installs -> {
@@ -198,41 +223,15 @@ private fun PlayDetailsStatCell(
 
         val subtitle = stat.subtitle
         if (!subtitle.isNullOrBlank()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontSize = 12.sp,
-                    color = colorResource(R.color.play_details_secondary_text),
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (stat.showInfoIcon) {
-                    val onClick = when (stat.id) {
-                        PlayDetailsStatId.RATING -> onRatingInfoClick
-                        PlayDetailsStatId.AGE -> onContentRatingInfoClick
-                        else -> null
-                    }
-                    Icon(
-                        painter = painterResource(R.drawable.ic_play_info_outline),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .requiredSize(14.dp)
-                            .then(
-                                if (onClick != null) {
-                                    Modifier.clickable(onClick = onClick)
-                                } else {
-                                    Modifier
-                                }
-                            ),
-                        tint = Color.Unspecified
-                    )
+            PlayDetailsSubtitleRow(
+                text = subtitle,
+                showInfoIcon = stat.showInfoIcon,
+                onInfoClick = when (stat.id) {
+                    PlayDetailsStatId.RATING -> onRatingInfoClick
+                    PlayDetailsStatId.AGE -> onContentRatingInfoClick
+                    else -> null
                 }
-            }
+            )
         }
     }
 }
@@ -263,21 +262,13 @@ private data class PlayDetailsStat(
 private fun buildPlayDetailsStats(app: App, context: android.content.Context): List<PlayDetailsStat> {
     return buildList {
         app.playDetailsRatingValue()?.let { ratingValue ->
-            val reviewCount = app.playTotalReviewCount()
-            val reviewSubtitle = if (reviewCount > 0L) {
-                context.getString(
-                    R.string.play_details_review_count,
-                    formatPlayReviewCount(reviewCount)
-                )
-            } else {
-                null
-            }
+            val reviewSubtitle = app.playReviewCountSubtitle(context)
             add(
                 PlayDetailsStat(
                     id = PlayDetailsStatId.RATING,
                     primary = PlayDetailsPrimary.Rating(ratingValue),
                     subtitle = reviewSubtitle,
-                    showInfoIcon = true
+                    showInfoIcon = reviewSubtitle != null
                 )
             )
         }
@@ -304,12 +295,12 @@ private fun buildPlayDetailsStats(app: App, context: android.content.Context): L
                 PlayDetailsStat(
                     id = PlayDetailsStatId.SIZE,
                     primary = PlayDetailsPrimary.DownloadSize(sizeLabel),
-                    subtitle = null
+                    subtitle = sizeLabel
                 )
             )
         }
 
-        app.playInstallsHeadline(context)?.let { installsHeadline ->
+        app.playInstallsHeadlineWithPrefix(context)?.let { installsHeadline ->
             add(
                 PlayDetailsStat(
                     id = PlayDetailsStatId.INSTALLS,
@@ -323,13 +314,6 @@ private fun buildPlayDetailsStats(app: App, context: android.content.Context): L
 }
 
 internal fun App.playDetailsRatingValue(): String? = playRatingDisplay()
-
-internal fun App.playTotalReviewCount(): Long = with(rating) {
-    oneStar + twoStar + threeStar + fourStar + fiveStar
-}
-
-internal fun formatPlayReviewCount(count: Long): String =
-    NumberFormat.getIntegerInstance(Locale.getDefault()).format(count)
 
 internal fun App.playAgeRatingBadge(): String {
     PLAY_AGE_BADGE_REGEX.find(contentRating.title)?.value?.let { return it }
@@ -349,12 +333,3 @@ internal fun App.playAgeRatingSubtitle(context: android.content.Context): String
         ?: contentRating.recommendation.trim().takeIf { it.isNotBlank() }
         ?: context.getString(R.string.play_details_age_fallback)
 
-internal fun App.playInstallsHeadline(context: android.content.Context): String? {
-    rating.abbreviatedLabel.trim().takeIf { it.isNotBlank() }?.let { return it }
-    val abbreviated = CommonUtil.addDiPrefix(installs) ?: return null
-    return if (installs >= 10_000L) {
-        context.getString(R.string.play_details_installs_more_than, abbreviated)
-    } else {
-        abbreviated
-    }
-}
