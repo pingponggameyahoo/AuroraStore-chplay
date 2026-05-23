@@ -447,4 +447,12 @@
     <string name="play_details_data_safety_title">"An toàn dữ liệu"</string>
     <string name="play_details_data_safety_intro">"Sự an toàn bắt đầu từ việc nắm được cách nhà phát triển thu thập và chia sẻ dữ liệu của bạn. Các biện pháp bảo vệ quyền riêng tư và bảo mật dữ liệu có thể thay đổi tuỳ theo cách sử dụng, khu vực và độ tuổi của bạn. Nhà phát triển đã cung cấp thông tin này và có thể cập nhật theo thời gian."</string>
     <string name="play_details_see_more_cd">"Xem chi tiết đầy đủ"</string>
+    <string name="play_data_safety_learn_more">"Tìm hiểu thêm"</string>
+    <string name="play_data_safety_no_share_title">"Không chia sẻ dữ liệu với bên thứ ba"</string>
+    <string name="play_data_safety_share_subtitle">"%1$s về cách nhà phát triển khai báo thông tin về hoạt động chia sẻ dữ liệu"</string>
+    <string name="play_data_safety_no_collect_title">"Không thu thập dữ liệu nào"</string>
+    <string name="play_data_safety_collect_subtitle">"%1$s về cách nhà phát triển khai báo thông tin về hoạt động thu thập dữ liệu"</string>
+    <string name="play_data_safety_family_title">"Đã cam kết tuân thủ Chính sách về gia đình của Play"</string>
+    <string name="play_data_safety_deletion_title">"Ứng dụng không cung cấp cách thức để yêu cầu xoá dữ liệu"</string>
+    <string name="play_data_safety_see_details">"Xem chi tiết"</string>
 </resources>

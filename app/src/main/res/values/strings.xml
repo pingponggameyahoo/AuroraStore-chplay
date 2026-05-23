@@ -279,6 +279,14 @@
     <string name="play_details_data_safety_title">"Data safety"</string>
     <string name="play_details_data_safety_intro">"Safety starts with understanding how developers collect and share your data. Data privacy and security practices may vary based on your use, region, and age. The developer provided this information and may update it over time."</string>
     <string name="play_details_see_more_cd">"See full details"</string>
+    <string name="play_data_safety_learn_more">"Learn more"</string>
+    <string name="play_data_safety_no_share_title">"No data shared with third parties"</string>
+    <string name="play_data_safety_share_subtitle">"%1$s about how developers declare sharing"</string>
+    <string name="play_data_safety_no_collect_title">"No data collected"</string>
+    <string name="play_data_safety_collect_subtitle">"%1$s about how developers declare collection"</string>
+    <string name="play_data_safety_family_title">"Committed to Play\'s Families Policy"</string>
+    <string name="play_data_safety_deletion_title">"Data can\'t be deleted"</string>
+    <string name="play_data_safety_see_details">"See details"</string>
     <string name="tab_top_charts">"Top charts"</string>
     <string name="tab_top_free">"Top free"</string>
     <string name="tab_top_grossing">"Top grossing"</string>

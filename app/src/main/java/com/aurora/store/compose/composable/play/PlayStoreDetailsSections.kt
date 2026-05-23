@@ -13,9 +13,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -24,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,8 +41,13 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aurora.gplayapi.data.models.App
@@ -302,12 +307,151 @@ fun PlayStoreDetailsDataSafetySection(onSeeMore: () -> Unit) {
             modifier = Modifier.padding(
                 start = horizontalPadding,
                 end = horizontalPadding,
-                bottom = dimensionResource(R.dimen.spacing_xlarge)
+                bottom = dimensionResource(R.dimen.spacing_large)
             ),
             style = MaterialTheme.typography.bodyMedium,
             fontSize = 14.sp,
             lineHeight = 20.sp,
             color = colorResource(R.color.play_details_secondary_text)
         )
+        PlayDataSafetySummaryCard(onSeeDetails = onSeeMore)
     }
+}
+
+@Composable
+private fun PlayDataSafetySummaryCard(onSeeDetails: () -> Unit) {
+    val horizontalPadding = dimensionResource(R.dimen.play_details_section_horizontal_padding)
+    val cardCorner = dimensionResource(R.dimen.play_details_data_safety_card_corner)
+    val learnMore = stringResource(R.string.play_data_safety_learn_more)
+    val iconTint = colorResource(R.color.play_details_secondary_text)
+    val titleColor = colorResource(R.color.play_details_primary_text)
+    val subtitleColor = colorResource(R.color.play_details_secondary_text)
+    val linkColor = colorResource(R.color.play_nav_selected)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = horizontalPadding)
+            .padding(bottom = dimensionResource(R.dimen.spacing_xlarge))
+            .border(
+                width = 1.dp,
+                color = colorResource(R.color.play_details_chip_border),
+                shape = RoundedCornerShape(cardCorner)
+            )
+            .padding(dimensionResource(R.dimen.spacing_large))
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+            PlayDataSafetyCardRow(
+                iconRes = R.drawable.ic_play_data_safety_share,
+                title = stringResource(R.string.play_data_safety_no_share_title),
+                iconTint = iconTint,
+                titleColor = titleColor
+            ) {
+                PlayDataSafetyLearnMoreSubtitle(
+                    fullText = stringResource(R.string.play_data_safety_share_subtitle, learnMore),
+                    learnMore = learnMore,
+                    color = subtitleColor
+                )
+            }
+            PlayDataSafetyCardRow(
+                iconRes = R.drawable.ic_play_data_safety_cloud_off,
+                title = stringResource(R.string.play_data_safety_no_collect_title),
+                iconTint = iconTint,
+                titleColor = titleColor
+            ) {
+                PlayDataSafetyLearnMoreSubtitle(
+                    fullText = stringResource(R.string.play_data_safety_collect_subtitle, learnMore),
+                    learnMore = learnMore,
+                    color = subtitleColor
+                )
+            }
+            PlayDataSafetyCardRow(
+                iconRes = R.drawable.ic_play_data_safety_family,
+                title = stringResource(R.string.play_data_safety_family_title),
+                iconTint = iconTint,
+                titleColor = titleColor
+            )
+            PlayDataSafetyCardRow(
+                iconRes = R.drawable.ic_play_data_safety_no_delete,
+                title = stringResource(R.string.play_data_safety_deletion_title),
+                iconTint = iconTint,
+                titleColor = titleColor
+            )
+        }
+        Text(
+            text = stringResource(R.string.play_data_safety_see_details),
+            modifier = Modifier
+                .padding(top = dimensionResource(R.dimen.spacing_large))
+                .clickable(onClick = onSeeDetails),
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = linkColor
+        )
+    }
+}
+
+@Composable
+private fun PlayDataSafetyCardRow(
+    @DrawableRes iconRes: Int,
+    title: String,
+    iconTint: Color,
+    titleColor: Color,
+    subtitle: (@Composable () -> Unit)? = null
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            modifier = Modifier
+                .size(24.dp)
+                .padding(top = 1.dp),
+            tint = iconTint
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 14.sp,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.Normal,
+                color = titleColor
+            )
+            subtitle?.invoke()
+        }
+    }
+}
+
+@Composable
+private fun PlayDataSafetyLearnMoreSubtitle(
+    fullText: String,
+    learnMore: String,
+    color: Color
+) {
+    val annotated = buildAnnotatedString {
+        val start = fullText.indexOf(learnMore)
+        if (start >= 0) {
+            append(fullText.substring(0, start))
+            withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
+                append(learnMore)
+            }
+            append(fullText.substring(start + learnMore.length))
+        } else {
+            append(fullText)
+        }
+    }
+    Text(
+        text = annotated,
+        style = MaterialTheme.typography.bodySmall,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        color = color
+    )
 }

@@ -96,4 +96,5 @@
     <dimen name="play_details_nav_button_height">40dp</dimen>
     <dimen name="play_details_nav_icon_size">20dp</dimen>
     <dimen name="play_details_section_horizontal_padding">16dp</dimen>
+    <dimen name="play_details_data_safety_card_corner">12dp</dimen>
 </resources>
