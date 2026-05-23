@@ -26,4 +26,11 @@
     <color name="play_nav_bar_background">#E8F0FE</color>
     <color name="play_nav_indicator">#D3E3FD</color>
     <color name="play_nav_selected">#0B57D0</color>
+
+    <!-- Play Store home sub-nav tabs (Cho bạn, Bảng xếp hạng, …) -->
+    <color name="play_tab_selected">#0B57D0</color>
+    <color name="play_tab_unselected">#1F1F1F</color>
+    <color name="play_tab_indicator">#0B57D0</color>
+    <color name="play_tab_container">#FFFFFF</color>
+    <color name="play_tab_divider">#E8EAED</color>
 </resources>

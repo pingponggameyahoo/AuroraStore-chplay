@@ -16,9 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.SecondaryScrollableTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -38,6 +37,8 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.contracts.TopChartsContract
 import com.aurora.store.R
+import com.aurora.store.compose.composable.PlayStoreSecondaryScrollableTabRow
+import com.aurora.store.compose.composable.PlayStoreTab
 import com.aurora.store.compose.composable.Placeholder
 import com.aurora.store.compose.composable.ShimmerAppRow
 import com.aurora.store.compose.composable.app.LargeAppListItem
@@ -228,15 +229,18 @@ private fun TopChartsBody(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        SecondaryScrollableTabRow(
-            selectedTabIndex = selectedIndex,
-            edgePadding = dimensionResource(R.dimen.spacing_small)
-        ) {
+        PlayStoreSecondaryScrollableTabRow(selectedTabIndex = selectedIndex) {
             chartTitles.forEachIndexed { index, titleRes ->
-                Tab(
-                    selected = selectedIndex == index,
+                val selected = selectedIndex == index
+                PlayStoreTab(
+                    selected = selected,
                     onClick = { onTabSelected(index) },
-                    text = { Text(stringResource(titleRes)) }
+                    text = {
+                        Text(
+                            text = stringResource(titleRes),
+                            fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal
+                        )
+                    }
                 )
             }
         }

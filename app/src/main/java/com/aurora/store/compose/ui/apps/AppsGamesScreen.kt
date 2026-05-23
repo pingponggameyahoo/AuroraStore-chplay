@@ -7,25 +7,24 @@ package com.aurora.store.compose.ui.apps
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.helpers.contracts.StreamContract
 import com.aurora.gplayapi.helpers.contracts.TopChartsContract
 import com.aurora.store.R
+import com.aurora.store.compose.composable.PlayStorePrimaryScrollableTabRow
+import com.aurora.store.compose.composable.PlayStoreTab
 import com.aurora.store.compose.navigation.Destination
 import com.aurora.store.util.Preferences
 import com.aurora.store.viewmodel.category.CategoryViewModel
@@ -64,20 +63,24 @@ fun AppsGamesScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        PrimaryScrollableTabRow(
-            modifier = Modifier.fillMaxWidth(),
-            selectedTabIndex = pagerState.currentPage,
-            edgePadding = dimensionResource(R.dimen.spacing_small)
+        PlayStorePrimaryScrollableTabRow(
+            selectedTabIndex = pagerState.currentPage
         ) {
             tabs.forEachIndexed { index, tab ->
-                Tab(
-                    selected = pagerState.currentPage == index,
+                val selected = pagerState.currentPage == index
+                PlayStoreTab(
+                    selected = selected,
                     onClick = {
                         coroutineScope.launch {
                             pagerState.animateScrollToPage(index)
                         }
                     },
-                    text = { Text(stringResource(tab.titleRes)) }
+                    text = {
+                        Text(
+                            text = stringResource(tab.titleRes),
+                            fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal
+                        )
+                    }
                 )
             }
         }
