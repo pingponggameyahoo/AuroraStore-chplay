@@ -6,21 +6,13 @@
 
 package com.aurora.store.compose.ui.details
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
@@ -30,6 +22,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,15 +39,18 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.aurora.extensions.adaptiveNavigationIcon
 import com.aurora.extensions.emptyPagingItems
-import com.aurora.extensions.isWindowCompact
+import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.Review
 import com.aurora.store.R
 import com.aurora.store.compose.composable.ContainedLoadingIndicator
 import com.aurora.store.compose.composable.Placeholder
 import com.aurora.store.compose.composable.ScrollHint
 import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.composable.details.ReviewListItem
-import com.aurora.store.compose.preview.ReviewPreviewProvider
+import com.aurora.store.compose.composable.play.PlayReviewFilterChipsRow
+import com.aurora.store.compose.composable.play.PlayReviewScreenToolbar
+import com.aurora.store.compose.composable.play.PlayReviewSortRow
+import com.aurora.store.compose.composable.play.PlayStoreReviewItem
+import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.ThemePreviewProvider
 import com.aurora.store.viewmodel.details.AppDetailsViewModel
 import com.aurora.store.viewmodel.details.ReviewViewModel
@@ -75,119 +72,95 @@ fun ReviewScreen(
     val app by appDetailsViewModel.app.collectAsStateWithLifecycle()
     val reviews = reviewViewModel.reviews.collectAsLazyPagingItems()
 
-    val topAppBarTitle = when {
-        windowAdaptiveInfo.isWindowCompact -> app!!.displayName
-        else -> stringResource(R.string.details_ratings)
-    }
-
     ScreenContent(
-        topAppBarTitle = topAppBarTitle,
+        app = app!!,
         reviews = reviews,
-        onFilter = { filter -> reviewViewModel.fetchReviews(filter) }
+        onFilter = { filter -> reviewViewModel.fetchReviews(filter) },
+        windowAdaptiveInfo = windowAdaptiveInfo
     )
 }
 
 @Composable
 private fun ScreenContent(
-    topAppBarTitle: String? = null,
+    app: App,
     reviews: LazyPagingItems<Review> = emptyPagingItems(),
     onFilter: (filter: Review.Filter) -> Unit = {},
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfoV2()
 ) {
+    var activeFilter by rememberSaveable { mutableStateOf(Review.Filter.ALL) }
+    val horizontalPadding = dimensionResource(R.dimen.play_details_section_horizontal_padding)
+    val primaryText = colorResource(R.color.play_details_primary_text)
+    val secondaryText = colorResource(R.color.play_details_secondary_text)
+
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             Column {
                 TopAppBar(
-                    title = topAppBarTitle,
+                    titleContent = { PlayReviewScreenToolbar(app = app) },
                     navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon
                 )
-                FilterHeader { filter -> onFilter(filter) }
+                PlayReviewFilterChipsRow(
+                    activeFilter = activeFilter,
+                    onFilterSelected = { filter ->
+                        activeFilter = filter
+                        onFilter(filter)
+                    }
+                )
+                PlayReviewSortRow(activeFilter = activeFilter)
             }
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            when (reviews.loadState.refresh) {
-                is LoadState.Loading -> ContainedLoadingIndicator()
+        when (reviews.loadState.refresh) {
+            is LoadState.Loading -> {
+                ContainedLoadingIndicator(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                )
+            }
 
-                is LoadState.Error -> {
-                    Placeholder(
-                        modifier = Modifier.padding(paddingValues),
-                        painter = painterResource(R.drawable.ic_disclaimer),
-                        message = stringResource(R.string.error)
-                    )
-                }
+            is LoadState.Error -> {
+                Placeholder(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    painter = painterResource(R.drawable.ic_disclaimer),
+                    message = stringResource(R.string.error)
+                )
+            }
 
-                else -> {
-                    val listState = rememberLazyListState()
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            state = listState
-                        ) {
-                            items(
-                                count = reviews.itemCount,
-                                key = reviews.itemKey { it.commentId }
-                            ) { index ->
-                                reviews[index]?.let { review -> ReviewListItem(review = review) }
+            else -> {
+                val listState = rememberLazyListState()
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        state = listState
+                    ) {
+                        items(
+                            count = reviews.itemCount,
+                            key = reviews.itemKey { it.commentId }
+                        ) { index ->
+                            reviews[index]?.let { review ->
+                                PlayStoreReviewItem(
+                                    review = review,
+                                    horizontalPadding = horizontalPadding,
+                                    primaryText = primaryText,
+                                    secondaryText = secondaryText
+                                )
                             }
                         }
-                        ScrollHint(
-                            listState = listState,
-                            modifier = Modifier.align(Alignment.BottomCenter)
-                        )
                     }
+                    ScrollHint(
+                        listState = listState,
+                        modifier = Modifier.align(Alignment.BottomCenter)
+                    )
                 }
             }
-        }
-    }
-}
-
-/**
- * Composable to hold sticky header for filtering through the reviews
- */
-@Composable
-private fun FilterHeader(onClick: (filter: Review.Filter) -> Unit) {
-    var activeFilter by rememberSaveable { mutableStateOf(Review.Filter.ALL) }
-
-    val filters = mapOf(
-        Review.Filter.ALL to R.string.filter_review_all,
-        Review.Filter.NEWEST to R.string.filter_latest,
-        Review.Filter.CRITICAL to R.string.filter_review_critical,
-        Review.Filter.POSITIVE to R.string.filter_review_positive,
-        Review.Filter.FIVE to R.string.filter_review_five,
-        Review.Filter.FOUR to R.string.filter_review_four,
-        Review.Filter.THREE to R.string.filter_review_three,
-        Review.Filter.TWO to R.string.filter_review_two,
-        Review.Filter.ONE to R.string.filter_review_one
-    )
-
-    LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = dimensionResource(R.dimen.spacing_medium)),
-        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
-    ) {
-        items(items = filters.keys.toList(), key = { item -> item }) { filter ->
-            val selected = activeFilter == filter
-            FilterChip(
-                onClick = {
-                    activeFilter = filter
-                    onClick(filter)
-                },
-                label = { Text(text = stringResource(filters.getValue(filter))) },
-                selected = selected,
-                leadingIcon = {
-                    if (selected) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_check),
-                            contentDescription = stringResource(filters.getValue(filter))
-                        )
-                    }
-                }
-            )
         }
     }
 }
@@ -195,9 +168,15 @@ private fun FilterHeader(onClick: (filter: Review.Filter) -> Unit) {
 @PreviewWrapper(ThemePreviewProvider::class)
 @Preview
 @Composable
-private fun ReviewScreenPreview(@PreviewParameter(ReviewPreviewProvider::class) review: Review) {
-    val reviews = List(10) { review.copy(commentId = Random.nextInt().toString()) }
+private fun ReviewScreenPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
+    val review = Review(
+        userName = "Dân Trần",
+        timeStamp = System.currentTimeMillis(),
+        rating = 5,
+        comment = "Bản cập nhật này với hình ảnh có bản quyền."
+    )
+    val reviews = List(5) { review.copy(commentId = Random.nextInt().toString()) }
     val reviewsFlow = MutableStateFlow(PagingData.from(reviews)).collectAsLazyPagingItems()
 
-    ScreenContent(reviews = reviewsFlow)
+    ScreenContent(app = app, reviews = reviewsFlow)
 }

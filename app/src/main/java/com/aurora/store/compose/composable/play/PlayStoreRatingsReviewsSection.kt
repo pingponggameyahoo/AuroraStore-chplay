@@ -365,7 +365,7 @@ private fun PlayRatingDistributionBar(
 }
 
 @Composable
-private fun PlayStoreReviewItem(
+internal fun PlayStoreReviewItem(
     review: Review,
     horizontalPadding: androidx.compose.ui.unit.Dp,
     primaryText: Color,
