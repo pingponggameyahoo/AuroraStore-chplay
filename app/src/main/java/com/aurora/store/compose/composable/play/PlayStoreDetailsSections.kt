@@ -366,11 +366,19 @@ private fun PlayDataSafetySummaryCard(onSeeDetails: () -> Unit) {
                 )
             }
             PlayDataSafetyCardRow(
-                iconRes = R.drawable.ic_play_data_safety_family,
-                title = stringResource(R.string.play_data_safety_family_title),
+                iconRes = R.drawable.ic_play_lock_outline,
+                title = stringResource(R.string.play_data_safety_encrypted_title),
                 iconTint = iconTint,
                 titleColor = titleColor
-            )
+            ) {
+                Text(
+                    text = stringResource(R.string.play_data_safety_encrypted_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp,
+                    color = subtitleColor
+                )
+            }
             PlayDataSafetyCardRow(
                 iconRes = R.drawable.ic_play_data_safety_no_delete,
                 title = stringResource(R.string.play_data_safety_deletion_title),

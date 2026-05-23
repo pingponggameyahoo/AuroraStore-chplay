@@ -455,4 +455,18 @@
     <string name="play_data_safety_family_title">"Đã cam kết tuân thủ Chính sách về gia đình của Play"</string>
     <string name="play_data_safety_deletion_title">"Ứng dụng không cung cấp cách thức để yêu cầu xoá dữ liệu"</string>
     <string name="play_data_safety_see_details">"Xem chi tiết"</string>
+    <string name="play_data_safety_detail_developer_info">"Nhà phát triển đã cung cấp thông tin này về cách ứng dụng này thu thập, chia sẻ và xử lý dữ liệu của bạn"</string>
+    <string name="play_data_safety_detail_summary">"Nhà phát triển cho biết ứng dụng này không thu thập hay chia sẻ dữ liệu nào của người dùng. %1$s về sự an toàn dữ liệu"</string>
+    <string name="play_data_safety_detail_learn_data_safety">"Tìm hiểu thêm"</string>
+    <string name="play_data_safety_detail_no_share_body">"Nhà phát triển cho biết ứng dụng này không chia sẻ dữ liệu người dùng với công ty/tổ chức khác. %1$s về cách nhà phát triển khai báo thông tin về hoạt động chia sẻ dữ liệu."</string>
+    <string name="play_data_safety_detail_no_collect_body">"Nhà phát triển nói rằng ứng dụng này không thu thập dữ liệu người dùng"</string>
+    <string name="play_data_safety_security_title">"Phương pháp bảo mật"</string>
+    <string name="play_data_safety_encrypted_title">"Dữ liệu được mã hóa trong khi chuyển"</string>
+    <string name="play_data_safety_encrypted_body">"Dữ liệu của bạn được chuyển qua một kết nối bảo mật"</string>
+    <string name="play_data_safety_deletion_section_title">"Xoá dữ liệu"</string>
+    <string name="play_data_safety_deletion_intro">"Nhà phát triển có thể đưa ra các cách giúp bạn xoá dữ liệu mà ứng dụng này thu thập. %1$s"</string>
+    <string name="play_data_safety_deletion_no_info_title">"Nhà phát triển chưa cung cấp thông tin về việc xoá dữ liệu"</string>
+    <string name="play_data_safety_deletion_no_info_body">"Dữ liệu có thể tự động được xoá theo thời gian. Xem %1$s của nhà phát triển để tìm hiểu cách họ sử dụng dữ liệu."</string>
+    <string name="play_data_safety_privacy_policy">"chính sách quyền riêng tư"</string>
+    <string name="play_data_safety_footer">"Để tìm hiểu thêm, hãy xem %1$s của nhà phát triển"</string>
 </resources>

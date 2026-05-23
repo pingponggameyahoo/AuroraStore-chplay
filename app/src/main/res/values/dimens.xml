@@ -97,4 +97,6 @@
     <dimen name="play_details_nav_icon_size">20dp</dimen>
     <dimen name="play_details_section_horizontal_padding">16dp</dimen>
     <dimen name="play_details_data_safety_card_corner">12dp</dimen>
+    <dimen name="play_data_safety_icon_circle_size">40dp</dimen>
+    <dimen name="play_data_safety_sheet_top_corner">24dp</dimen>
 </resources>

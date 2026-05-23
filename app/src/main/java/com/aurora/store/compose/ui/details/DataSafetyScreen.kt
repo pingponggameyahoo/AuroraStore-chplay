@@ -11,32 +11,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.colorResource
 import com.aurora.extensions.adaptiveNavigationIcon
-import com.aurora.gplayapi.data.models.datasafety.Report
+import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
 import com.aurora.store.compose.composable.ScrollHint
 import com.aurora.store.compose.composable.TopAppBar
-import com.aurora.store.compose.ui.details.composable.DataSafety
+import com.aurora.store.compose.composable.play.PlayDataSafetyDetailContent
 
 @Composable
 fun DataSafetyScreen(
-    report: Report?,
+    app: App,
     privacyPolicyUrl: String,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfoV2()
 ) {
+    val screenBackground = colorResource(R.color.play_data_safety_screen_background)
+
     Scaffold(
+        containerColor = screenBackground,
         topBar = {
             TopAppBar(
-                title = stringResource(R.string.play_details_data_safety_title),
+                title = String(),
                 navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon
             )
         }
@@ -47,24 +47,16 @@ fun DataSafetyScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (report != null) {
-                LazyColumn(state = listState) {
-                    item {
-                        DataSafety(
-                            report = report,
-                            privacyPolicyUrl = privacyPolicyUrl,
-                            showSectionHeader = false
-                        )
-                    }
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item {
+                    PlayDataSafetyDetailContent(
+                        app = app,
+                        privacyPolicyUrl = privacyPolicyUrl
+                    )
                 }
-            } else {
-                Text(
-                    text = stringResource(R.string.play_details_data_safety_intro),
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    fontSize = 14.sp
-                )
             }
             ScrollHint(
                 listState = listState,

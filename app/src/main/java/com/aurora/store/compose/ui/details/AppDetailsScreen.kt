@@ -532,7 +532,7 @@ private fun ScreenContentApp(
         )
 
         is ExtraScreen.DataSafety -> DataSafetyScreen(
-            report = dataSafetyReport,
+            app = app,
             privacyPolicyUrl = app.privacyPolicyUrl
         )
 
