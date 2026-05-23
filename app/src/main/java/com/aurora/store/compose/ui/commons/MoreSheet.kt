@@ -60,6 +60,9 @@ fun MoreSheet(
         MoreItem(R.string.title_apps_games, R.drawable.ic_apps) {
             onNavigateTo(Destination.Installed)
         },
+        MoreItem(R.string.title_updates, R.drawable.ic_updates) {
+            onNavigateTo(Destination.Updates)
+        },
         MoreItem(R.string.title_blacklist_manager, R.drawable.ic_blacklist) {
             onNavigateTo(Destination.Blacklist)
         },

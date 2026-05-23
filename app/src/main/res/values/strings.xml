@@ -257,6 +257,15 @@
     <string name="spoof_apply">"Make sure you re-login to apply the spoof"</string>
     <string name="insecure_anonymous_apply">"Make sure you re-login and restart app to apply changes."</string>
     <string name="tab_categories">"Categories"</string>
+    <string name="tab_kids">"Kids"</string>
+    <string name="tab_paid_premium">"Premium"</string>
+    <string name="tab_types">"Categories"</string>
+    <string name="tab_ebooks">"Ebooks"</string>
+    <string name="tab_audiobooks">"Audiobooks"</string>
+    <string name="tab_genres">"Genres"</string>
+    <string name="tab_bestsellers">"Best sellers"</string>
+    <string name="tab_new_releases">"New releases"</string>
+    <string name="tab_popular_free">"Top free"</string>
     <string name="tab_editor_choice">"Editor's choice"</string>
     <string name="tab_for_you">"For you"</string>
     <string name="tab_top_charts">"Top charts"</string>

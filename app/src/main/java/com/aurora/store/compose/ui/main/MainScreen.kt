@@ -30,30 +30,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.aurora.extensions.requiresObbDir
 import com.aurora.store.MainViewModel
 import com.aurora.store.R
 import com.aurora.store.compose.composable.TopAppBar
 import com.aurora.store.compose.composition.LocalNetworkStatus
 import com.aurora.store.compose.navigation.Destination
 import com.aurora.store.compose.ui.apps.AppsGamesScreen
+import com.aurora.store.compose.ui.apps.StoreSection
 import com.aurora.store.compose.ui.commons.MoreSheet
 import com.aurora.store.compose.ui.commons.NetworkScreen
 import com.aurora.store.compose.ui.installed.InstalledScreen
 import com.aurora.store.compose.ui.search.SearchScreen
 import com.aurora.store.compose.ui.sheets.AppUpdateSheet
-import com.aurora.store.compose.ui.updates.UpdatesScreen
 import com.aurora.store.data.model.NetworkStatus
-import com.aurora.store.data.model.PermissionType
-import com.aurora.store.data.providers.PermissionProvider.Companion.isGranted
 import com.aurora.store.data.room.update.Update
-import com.aurora.store.viewmodel.all.UpdatesViewModel
 import kotlinx.coroutines.launch
 
 private const val PAGER_PAGE_COUNT = 5
@@ -118,10 +113,8 @@ private enum class MainNavItem(
 fun MainScreen(
     initialTab: Int = MainPagerPage.APPS.ordinal,
     mainViewModel: MainViewModel = hiltViewModel(),
-    updatesViewModel: UpdatesViewModel = hiltViewModel(),
     onNavigateTo: (Destination) -> Unit = {}
 ) {
-    val context = LocalContext.current
     val networkStatus = LocalNetworkStatus.current
     val updates by mainViewModel.updateHelper.updates.collectAsStateWithLifecycle(
         initialValue = null
@@ -193,7 +186,7 @@ fun MainScreen(
                         when (currentPage) {
                             MainPagerPage.GAMES -> R.string.title_games
                             MainPagerPage.APPS -> R.string.title_apps
-                            MainPagerPage.UPDATES -> R.string.title_updates
+                            MainPagerPage.UPDATES -> R.string.title_nav_books
                             MainPagerPage.SEARCH -> R.string.action_search
                             MainPagerPage.YOU -> R.string.title_nav_you
                         }
@@ -267,51 +260,20 @@ fun MainScreen(
             ) { page ->
                 when (MainPagerPage.entries[page]) {
                     MainPagerPage.GAMES -> AppsGamesScreen(
-                        pageType = 1,
+                        section = StoreSection.GAMES,
                         onNavigateTo = ::handleNavigation
                     )
                     MainPagerPage.APPS -> AppsGamesScreen(
-                        pageType = 0,
+                        section = StoreSection.APPS,
                         onNavigateTo = onNavigateTo
                     )
                     MainPagerPage.SEARCH -> SearchScreen(
                         embeddedInMain = true,
                         onNavigateTo = onNavigateTo
                     )
-                    MainPagerPage.UPDATES -> UpdatesScreen(
-                        viewModel = updatesViewModel,
-                        onNavigateTo = ::handleNavigation,
-                        onRequestUpdate = { update ->
-                            if (update.fileList.requiresObbDir() &&
-                                !isGranted(context, PermissionType.STORAGE_MANAGER)
-                            ) {
-                                onNavigateTo(
-                                    Destination.PermissionRationale(
-                                        setOf(PermissionType.STORAGE_MANAGER)
-                                    )
-                                )
-                            } else {
-                                updatesViewModel.download(update)
-                            }
-                        },
-                        onRequestUpdateAll = { selectedUpdates ->
-                            val needsObb = selectedUpdates.any {
-                                it.fileList.requiresObbDir()
-                            }
-                            if (needsObb && !isGranted(context, PermissionType.STORAGE_MANAGER)) {
-                                onNavigateTo(
-                                    Destination.PermissionRationale(
-                                        setOf(PermissionType.STORAGE_MANAGER)
-                                    )
-                                )
-                            } else {
-                                updatesViewModel.downloadAll(selectedUpdates)
-                            }
-                        },
-                        onCancelUpdate = { packageName ->
-                            updatesViewModel.cancelDownload(packageName)
-                        },
-                        onCancelAll = { updatesViewModel.cancelAll() }
+                    MainPagerPage.UPDATES -> AppsGamesScreen(
+                        section = StoreSection.BOOKS,
+                        onNavigateTo = onNavigateTo
                     )
                     MainPagerPage.YOU -> InstalledScreen(
                         onNavigateTo = onNavigateTo

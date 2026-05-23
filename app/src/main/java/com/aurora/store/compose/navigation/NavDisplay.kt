@@ -28,6 +28,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.aurora.Constants.PACKAGE_NAME_GMS
+import com.aurora.extensions.requiresObbDir
 import com.aurora.extensions.toast
 import com.aurora.store.AuroraApp
 import com.aurora.store.ComposeActivity
@@ -58,6 +59,11 @@ import com.aurora.store.compose.ui.preferences.updates.UpdatesPreferenceScreen
 import com.aurora.store.compose.ui.search.SearchScreen
 import com.aurora.store.compose.ui.splash.SplashScreen
 import com.aurora.store.compose.ui.spoof.SpoofScreen
+import com.aurora.store.compose.ui.updates.UpdatesScreen
+import com.aurora.store.data.model.PermissionType
+import com.aurora.store.data.providers.PermissionProvider.Companion.isGranted
+import com.aurora.store.viewmodel.all.UpdatesViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.aurora.store.data.event.InstallerEvent
 import com.aurora.store.data.model.AccountType
 import com.aurora.store.data.providers.AccountProvider
@@ -134,6 +140,7 @@ fun NavDisplay(startDestination: NavKey) {
 
             Destination.Search -> backstack.add(Screen.Search)
             Destination.Downloads -> backstack.add(Screen.Downloads)
+            Destination.Updates -> backstack.add(Screen.Updates)
             Destination.Accounts -> backstack.add(Screen.Accounts)
             Destination.GoogleLogin -> backstack.add(Screen.GoogleLogin)
             Destination.About -> backstack.add(Screen.About)
@@ -253,6 +260,43 @@ fun NavDisplay(startDestination: NavKey) {
             entry<Screen.Onboarding> { OnboardingScreen() }
             entry<Screen.Blacklist> { BlacklistScreen() }
             entry<Screen.Downloads> { DownloadsScreen(onNavigateTo = ::navigate) }
+            entry<Screen.Updates> {
+                val context = LocalContext.current
+                val updatesViewModel: UpdatesViewModel = hiltViewModel()
+                UpdatesScreen(
+                    viewModel = updatesViewModel,
+                    onNavigateTo = ::navigate,
+                    onRequestUpdate = { update ->
+                        if (update.fileList.requiresObbDir() &&
+                            !isGranted(context, PermissionType.STORAGE_MANAGER)
+                        ) {
+                            navigate(
+                                Destination.PermissionRationale(
+                                    setOf(PermissionType.STORAGE_MANAGER)
+                                )
+                            )
+                        } else {
+                            updatesViewModel.download(update)
+                        }
+                    },
+                    onRequestUpdateAll = { selectedUpdates ->
+                        val needsObb = selectedUpdates.any { it.fileList.requiresObbDir() }
+                        if (needsObb && !isGranted(context, PermissionType.STORAGE_MANAGER)) {
+                            navigate(
+                                Destination.PermissionRationale(
+                                    setOf(PermissionType.STORAGE_MANAGER)
+                                )
+                            )
+                        } else {
+                            updatesViewModel.downloadAll(selectedUpdates)
+                        }
+                    },
+                    onCancelUpdate = { packageName ->
+                        updatesViewModel.cancelDownload(packageName)
+                    },
+                    onCancelAll = { updatesViewModel.cancelAll() }
+                )
+            }
             entry<Screen.Accounts> { AccountsScreen(onNavigateTo = ::navigate) }
             entry<Screen.GoogleLogin> { GoogleLoginScreen(onNavigateTo = ::navigate) }
             entry<Screen.About> { AboutScreen() }

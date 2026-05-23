@@ -21,18 +21,19 @@ import com.aurora.store.viewmodel.homestream.StreamViewModel
 
 @Composable
 internal fun ForYouContent(
-    pageType: Int,
+    section: StoreSection,
     viewModel: StreamViewModel,
+    streamType: StreamContract.Type = StreamContract.Type.HOME,
     onAppClick: (App) -> Unit,
     onHeaderClick: (StreamCluster) -> Unit,
     onClusterScrolled: (StreamCluster) -> Unit,
     onScrolledToEnd: () -> Unit
 ) {
-    val category = category(pageType)
+    val category = section.streamCategory
     val state by viewModel.liveData.observeForced()
 
-    LaunchedEffect(category) {
-        viewModel.getStreamBundle(category, StreamContract.Type.HOME)
+    LaunchedEffect(category, streamType) {
+        viewModel.getStreamBundle(category, streamType)
     }
 
     @Suppress("UNCHECKED_CAST")

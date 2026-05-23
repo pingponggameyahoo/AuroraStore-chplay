@@ -24,11 +24,11 @@ import com.aurora.store.viewmodel.category.CategoryViewModel
 
 @Composable
 internal fun CategoriesContent(
-    pageType: Int,
+    section: StoreSection,
+    categoryType: Category.Type = section.categoryBrowseType,
     viewModel: CategoryViewModel,
     onCategoryClick: (Category) -> Unit
 ) {
-    val categoryType = if (pageType == 1) Category.Type.GAME else Category.Type.APPLICATION
     val state by viewModel.liveData.observeAsState()
 
     LaunchedEffect(categoryType) {

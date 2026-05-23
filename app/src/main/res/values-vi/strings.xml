@@ -124,6 +124,15 @@
     <string name="tab_for_you">Cho bạn</string>
     <string name="tab_editor_choice">Lựa chọn của biên tập viên</string>
     <string name="tab_categories">Thể loại</string>
+    <string name="tab_kids">Trẻ em</string>
+    <string name="tab_paid_premium">Có tính phí</string>
+    <string name="tab_types">Loại</string>
+    <string name="tab_ebooks">Sách điện tử</string>
+    <string name="tab_audiobooks">Sách nói</string>
+    <string name="tab_genres">Thể loại</string>
+    <string name="tab_bestsellers">Bán chạy nhất</string>
+    <string name="tab_new_releases">Mới phát hành</string>
+    <string name="tab_popular_free">Miễn phí phổ biến</string>
     <string name="insecure_anonymous_apply">Đảm bảo bạn đã đăng nhập lại và khởi động lại ứng dụng để áp dụng các thay đổi.</string>
     <string name="spoof_apply">Hãy chắc rằng bạn đã đăng nhập lại để áp dụng sự giả mạo</string>
     <string name="purchase_session_expired">Phiên đã hết hạn, đăng nhập lại để có phiên mới.</string>

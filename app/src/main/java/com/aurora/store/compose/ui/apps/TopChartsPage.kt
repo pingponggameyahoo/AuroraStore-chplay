@@ -52,7 +52,7 @@ private const val LOAD_MORE_THRESHOLD = 2
 
 @Composable
 internal fun TopChartsContent(
-    pageType: Int,
+    section: StoreSection,
     viewModel: TopChartViewModel,
     onAppClick: (App) -> Unit
 ) {
@@ -68,8 +68,7 @@ internal fun TopChartsContent(
         R.string.tab_trending,
         R.string.tab_top_paid
     )
-    val chartType =
-        if (pageType == 1) TopChartsContract.Type.GAME else TopChartsContract.Type.APPLICATION
+    val chartType = section.topChartType
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     val selectedChart = charts[selectedIndex]
     val state by viewModel.state.collectForced(ViewState.Loading)
@@ -104,6 +103,115 @@ internal fun TopChartsContent(
         onRetry = { viewModel.getStreamCluster(chartType, selectedChart) },
         onAppClick = onAppClick
     )
+}
+
+@Composable
+internal fun SingleChartListContent(
+    section: StoreSection,
+    tab: StoreTab,
+    viewModel: TopChartViewModel,
+    onAppClick: (App) -> Unit
+) {
+    val chartId = tab.bookChartId()
+        ?: TopChartsContract.Chart.TOP_SELLING_FREE.value
+    val category = section.topChartCategory
+    val state by viewModel.state.collectForced(ViewState.Loading)
+    val cluster = state.getDataAs<StreamCluster?>()
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(category, chartId) {
+        listState.scrollToItem(0)
+        viewModel.getStreamCluster(category, chartId)
+    }
+
+    val reachedEnd by remember {
+        derivedStateOf {
+            val last = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+            val total = listState.layoutInfo.totalItemsCount
+            last >= total - LOAD_MORE_THRESHOLD
+        }
+    }
+    LaunchedEffect(reachedEnd) {
+        if (reachedEnd && cluster?.hasNext() == true) {
+            viewModel.nextCluster(category, chartId)
+        }
+    }
+
+    ChartListBody(
+        state = state,
+        cluster = cluster,
+        listState = listState,
+        onRetry = { viewModel.getStreamCluster(category, chartId) },
+        onAppClick = onAppClick
+    )
+}
+
+@Composable
+private fun ChartListBody(
+    state: ViewState,
+    cluster: StreamCluster?,
+    listState: LazyListState,
+    onRetry: () -> Unit,
+    onAppClick: (App) -> Unit
+) {
+    when {
+        state is ViewState.Error -> Placeholder(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(R.drawable.ic_apps),
+            message = stringResource(R.string.no_apps_available),
+            actionLabel = stringResource(R.string.action_retry),
+            onAction = onRetry
+        )
+
+        cluster != null && cluster.clusterAppList.isEmpty() -> Placeholder(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(R.drawable.ic_apps),
+            message = stringResource(R.string.no_apps_available)
+        )
+
+        cluster != null -> {
+            val apps = cluster.clusterAppList
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = listState,
+                contentPadding = PaddingValues(
+                    vertical = dimensionResource(R.dimen.spacing_small)
+                ),
+                verticalArrangement = Arrangement.spacedBy(
+                    dimensionResource(R.dimen.spacing_xsmall)
+                )
+            ) {
+                items(count = apps.size, key = { apps[it].id }) { index ->
+                    LargeAppListItem(
+                        app = apps[index],
+                        onClick = { onAppClick(apps[index]) }
+                    )
+                }
+                if (cluster.hasNext()) {
+                    item(key = "progress") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(dimensionResource(R.dimen.spacing_large)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
+            }
+        }
+
+        else -> LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = dimensionResource(R.dimen.spacing_small)),
+            verticalArrangement = Arrangement.spacedBy(
+                dimensionResource(R.dimen.spacing_xsmall)
+            )
+        ) {
+            items(8) { ShimmerAppRow() }
+        }
+    }
 }
 
 @Composable
