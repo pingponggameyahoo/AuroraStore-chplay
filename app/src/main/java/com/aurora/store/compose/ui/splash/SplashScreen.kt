@@ -90,6 +90,7 @@ fun SplashScreen(
 
     var anonymousLoading by remember { mutableStateOf(false) }
     var googleLoading by remember { mutableStateOf(false) }
+    var hasNavigatedFromAuth by remember { mutableStateOf(false) }
 
     val accountLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -112,6 +113,8 @@ fun SplashScreen(
     LaunchedEffect(authState) {
         when (val state = authState) {
             AuthState.Valid, AuthState.SignedIn -> {
+                if (hasNavigatedFromAuth) return@LaunchedEffect
+                hasNavigatedFromAuth = true
                 anonymousLoading = false
                 googleLoading = false
                 when {
@@ -126,7 +129,8 @@ fun SplashScreen(
                             defaultTabPreferenceToPagerPage(
                                 Preferences.getInteger(
                                     context,
-                                    Preferences.PREFERENCE_DEFAULT_SELECTED_TAB
+                                    Preferences.PREFERENCE_DEFAULT_SELECTED_TAB,
+                                    default = 0
                                 )
                             )
                         )

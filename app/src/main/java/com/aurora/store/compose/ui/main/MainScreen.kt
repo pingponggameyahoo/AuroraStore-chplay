@@ -24,11 +24,14 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -53,12 +56,15 @@ import kotlinx.coroutines.launch
 
 private const val PAGER_PAGE_COUNT = 5
 
+/** Busts old saveable pager keys that restored Search (page 2) after cold start. */
+private const val MAIN_PAGER_SAVEABLE_KEY = "aurora_main_bottom_nav_pager_v5"
+
 /** Maps settings default-tab preference (games / apps / updates) to [MainPagerPage] index. */
 internal fun defaultTabPreferenceToPagerPage(preferenceIndex: Int): Int = when (preferenceIndex) {
     0 -> MainPagerPage.GAMES.ordinal
     1 -> MainPagerPage.APPS.ordinal
     2 -> MainPagerPage.UPDATES.ordinal
-    else -> MainPagerPage.APPS.ordinal
+    else -> MainPagerPage.GAMES.ordinal
 }
 
 private enum class MainPagerPage {
@@ -111,9 +117,24 @@ private enum class MainNavItem(
 
 @Composable
 fun MainScreen(
-    initialTab: Int = MainPagerPage.APPS.ordinal,
+    initialTab: Int = MainPagerPage.GAMES.ordinal,
     mainViewModel: MainViewModel = hiltViewModel(),
     onNavigateTo: (Destination) -> Unit = {}
+) {
+    key(MAIN_PAGER_SAVEABLE_KEY, initialTab) {
+        MainScreenBody(
+            initialTab = initialTab,
+            mainViewModel = mainViewModel,
+            onNavigateTo = onNavigateTo
+        )
+    }
+}
+
+@Composable
+private fun MainScreenBody(
+    initialTab: Int,
+    mainViewModel: MainViewModel,
+    onNavigateTo: (Destination) -> Unit
 ) {
     val networkStatus = LocalNetworkStatus.current
     val updates by mainViewModel.updateHelper.updates.collectAsStateWithLifecycle(
@@ -122,10 +143,19 @@ fun MainScreen(
     val updateCount = updates?.size ?: 0
 
     val coroutineScope = rememberCoroutineScope()
+    val resolvedInitialTab = initialTab.coerceIn(0, PAGER_PAGE_COUNT - 1)
     val pagerState = rememberPagerState(
-        initialPage = initialTab.coerceIn(0, PAGER_PAGE_COUNT - 1)
-    ) {
-        PAGER_PAGE_COUNT
+        initialPage = resolvedInitialTab,
+        pageCount = { PAGER_PAGE_COUNT }
+    )
+
+    // Saveable can apply the previous session page (Search) one frame after open — fix after layout.
+    LaunchedEffect(resolvedInitialTab) {
+        withFrameNanos {}
+        withFrameNanos {}
+        if (pagerState.currentPage != resolvedInitialTab) {
+            pagerState.scrollToPage(resolvedInitialTab)
+        }
     }
 
     var showMoreSheet by remember { mutableStateOf(false) }

@@ -5,21 +5,61 @@
 
 package com.aurora.store.compose.composable
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabIndicatorScope
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.aurora.store.R
 
+/** Width of the indicator pill relative to the selected tab label width. */
+private const val playTabIndicatorWidthFraction = 0.9f
+
 private val playTabIndicatorHeight = 3.dp
+private val playTabIndicatorTopRadius = 3.dp
+
+private val playTabIndicatorShape = RoundedCornerShape(
+    topStart = playTabIndicatorTopRadius,
+    topEnd = playTabIndicatorTopRadius,
+    bottomStart = 0.dp,
+    bottomEnd = 0.dp
+)
+
+@Composable
+private fun TabIndicatorScope.PlayStoreTabIndicator(
+    selectedTabIndex: Int,
+    color: Color
+) {
+    Box(
+        modifier = Modifier
+            .tabIndicatorOffset(
+                selectedTabIndex = selectedTabIndex,
+                matchContentSize = true
+            )
+            .height(playTabIndicatorHeight),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(playTabIndicatorWidthFraction)
+                .fillMaxHeight()
+                .background(color = color, shape = playTabIndicatorShape)
+        )
+    }
+}
 
 @Composable
 fun PlayStorePrimaryScrollableTabRow(
@@ -42,13 +82,8 @@ fun PlayStorePrimaryScrollableTabRow(
             )
         },
         indicator = {
-            TabRowDefaults.PrimaryIndicator(
-                modifier = Modifier.tabIndicatorOffset(
-                    selectedTabIndex = selectedTabIndex,
-                    matchContentSize = true
-                ),
-                width = Dp.Unspecified,
-                height = playTabIndicatorHeight,
+            PlayStoreTabIndicator(
+                selectedTabIndex = selectedTabIndex,
                 color = indicatorColor
             )
         },
@@ -70,14 +105,15 @@ fun PlayStoreSecondaryScrollableTabRow(
         containerColor = colorResource(R.color.play_tab_container),
         contentColor = colorResource(R.color.play_tab_unselected),
         edgePadding = dimensionResource(R.dimen.spacing_small),
-        divider = {},
+        divider = {
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = colorResource(R.color.play_tab_divider)
+            )
+        },
         indicator = {
-            TabRowDefaults.SecondaryIndicator(
-                modifier = Modifier.tabIndicatorOffset(
-                    selectedTabIndex = selectedTabIndex,
-                    matchContentSize = true
-                ),
-                height = playTabIndicatorHeight,
+            PlayStoreTabIndicator(
+                selectedTabIndex = selectedTabIndex,
                 color = indicatorColor
             )
         },
