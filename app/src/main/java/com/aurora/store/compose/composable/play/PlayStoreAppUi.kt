@@ -198,14 +198,15 @@ internal fun App.playInstallsHeadline(): String? {
 }
 
 internal fun App.playInstallsHeadlineWithPrefix(context: Context): String? {
-    playInstallsHeadline()?.let { headline ->
-        if (downloadString.isNotBlank()) return headline
-        if (installs >= 10_000L) {
-            return context.getString(R.string.play_details_installs_more_than, headline)
-        }
-        return headline
-    }
-    return null
+    val headline = playInstallsHeadline() ?: return null
+    if (headline.hasPlayInstallsMorePrefix()) return headline
+    return context.getString(R.string.play_details_installs_more_than, headline)
+}
+
+private fun String.hasPlayInstallsMorePrefix(): Boolean {
+    val trimmed = trim()
+    return trimmed.startsWith("Hơn ", ignoreCase = true) ||
+        trimmed.startsWith("More than ", ignoreCase = true)
 }
 
 private fun String.isPlayGenreEnum(): Boolean =
