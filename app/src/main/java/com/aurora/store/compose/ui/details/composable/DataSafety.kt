@@ -34,14 +34,20 @@ import com.aurora.store.compose.preview.ThemePreviewProvider
  * @param privacyPolicyUrl App's privacy policy URL
  */
 @Composable
-fun DataSafety(report: Report, privacyPolicyUrl: String) {
+fun DataSafety(
+    report: Report,
+    privacyPolicyUrl: String,
+    showSectionHeader: Boolean = true
+) {
     val context = LocalContext.current
 
-    SectionHeader(
-        title = stringResource(R.string.details_data_safety_title),
-        subtitle = stringResource(R.string.details_data_safety_subtitle),
-        onClick = { context.browse(privacyPolicyUrl) }
-    )
+    if (showSectionHeader) {
+        SectionHeader(
+            title = stringResource(R.string.details_data_safety_title),
+            subtitle = stringResource(R.string.details_data_safety_subtitle),
+            onClick = { context.browse(privacyPolicyUrl) }
+        )
+    }
 
     report.entries.groupBy { it.type }.forEach { (type, entries) ->
         when (type) {

@@ -274,6 +274,11 @@
     <string name="play_details_installs_more_than">"More than %1$s"</string>
     <string name="play_details_age_fallback">"Content rating"</string>
     <string name="play_details_info_icon_cd">"More information"</string>
+    <string name="play_details_about_game">"About this game"</string>
+    <string name="play_details_about_app">"About this app"</string>
+    <string name="play_details_data_safety_title">"Data safety"</string>
+    <string name="play_details_data_safety_intro">"Safety starts with understanding how developers collect and share your data. Data privacy and security practices may vary based on your use, region, and age. The developer provided this information and may update it over time."</string>
+    <string name="play_details_see_more_cd">"See full details"</string>
     <string name="tab_top_charts">"Top charts"</string>
     <string name="tab_top_free">"Top free"</string>
     <string name="tab_top_grossing">"Top grossing"</string>

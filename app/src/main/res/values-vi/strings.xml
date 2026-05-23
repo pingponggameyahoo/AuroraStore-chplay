@@ -442,4 +442,9 @@
     <string name="play_details_installs_more_than">"Hơn %1$s"</string>
     <string name="play_details_age_fallback">"Xếp hạng nội dung"</string>
     <string name="play_details_info_icon_cd">"Thông tin thêm"</string>
+    <string name="play_details_about_game">"Về trò chơi này"</string>
+    <string name="play_details_about_app">"Về ứng dụng này"</string>
+    <string name="play_details_data_safety_title">"An toàn dữ liệu"</string>
+    <string name="play_details_data_safety_intro">"Sự an toàn bắt đầu từ việc nắm được cách nhà phát triển thu thập và chia sẻ dữ liệu của bạn. Các biện pháp bảo vệ quyền riêng tư và bảo mật dữ liệu có thể thay đổi tuỳ theo cách sử dụng, khu vực và độ tuổi của bạn. Nhà phát triển đã cung cấp thông tin này và có thể cập nhật theo thời gian."</string>
+    <string name="play_details_see_more_cd">"Xem chi tiết đầy đủ"</string>
 </resources>

@@ -79,10 +79,11 @@ import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.ThemePreviewProvider
 import com.aurora.store.compose.ui.commons.ForceRestartDialog
 import com.aurora.store.compose.ui.commons.PermissionRationaleScreen
-import com.aurora.store.compose.ui.details.composable.Actions
+import com.aurora.store.compose.composable.play.PlayStoreDetailsAboutSection
+import com.aurora.store.compose.composable.play.PlayStoreDetailsDataSafetySection
+import com.aurora.store.compose.composable.play.PlayStoreDetailsInstallActions
 import com.aurora.store.compose.ui.details.composable.Changelog
 import com.aurora.store.compose.ui.details.composable.Compatibility
-import com.aurora.store.compose.ui.details.composable.DataSafety
 import com.aurora.store.compose.ui.details.composable.Details
 import com.aurora.store.compose.ui.details.composable.DeveloperDetails
 import com.aurora.store.compose.ui.details.composable.Privacy
@@ -349,76 +350,6 @@ private fun ScreenContentApp(
     }
 
     @Composable
-    fun SetupActions() {
-        AnimatedContent(
-            targetState = state,
-            contentKey = { it::class },
-            transitionSpec = { fadeIn() togetherWith fadeOut() },
-            label = "Actions"
-        ) { currentState ->
-            when (currentState) {
-                is AppState.Queued,
-                is AppState.Purchasing,
-                is AppState.Downloading -> {
-                    Actions(
-                        primaryActionDisplayName = stringResource(R.string.action_open),
-                        secondaryActionDisplayName = stringResource(R.string.action_cancel),
-                        isPrimaryActionEnabled = false,
-                        onSecondaryAction = onCancelDownload
-                    )
-                }
-
-                is AppState.Verifying,
-                is AppState.Installing -> {
-                    Actions(
-                        primaryActionDisplayName = stringResource(R.string.action_open),
-                        secondaryActionDisplayName = stringResource(R.string.action_cancel),
-                        isPrimaryActionEnabled = false,
-                        isSecondaryActionEnabled = false
-                    )
-                }
-
-                is AppState.Updatable -> {
-                    Actions(
-                        primaryActionDisplayName = stringResource(R.string.action_update),
-                        secondaryActionDisplayName = stringResource(R.string.action_uninstall),
-                        onPrimaryAction = ::onInstall,
-                        onSecondaryAction = onUninstall
-                    )
-                }
-
-                is AppState.Installed -> {
-                    val canOpen = remember(app.packageName) {
-                        PackageUtil.getLaunchIntent(context, app.packageName) != null
-                    }
-                    Actions(
-                        primaryActionDisplayName = stringResource(R.string.action_open),
-                        secondaryActionDisplayName = stringResource(R.string.action_uninstall),
-                        onPrimaryAction = onOpen,
-                        onSecondaryAction = onUninstall,
-                        isPrimaryActionEnabled = canOpen
-                    )
-                }
-
-                else -> {
-                    val primaryActionName = if (currentState is AppState.Archived) {
-                        stringResource(R.string.action_unarchive)
-                    } else {
-                        if (app.isFree) stringResource(R.string.action_install) else app.price
-                    }
-
-                    Actions(
-                        primaryActionDisplayName = primaryActionName,
-                        secondaryActionDisplayName = stringResource(R.string.title_manual_download),
-                        onPrimaryAction = ::onInstall,
-                        onSecondaryAction = { showExtraPane(ExtraScreen.ManualDownload) }
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
     fun MainPane() {
         Scaffold(
             topBar = {
@@ -452,26 +383,39 @@ private fun ScreenContentApp(
                     }
 
                     item {
-                        SetupActions()
+                        PlayStoreDetailsInstallActions(
+                            app = app,
+                            state = state,
+                            onInstall = ::onInstall,
+                            onCancelDownload = onCancelDownload,
+                            onOpen = onOpen
+                        )
+                    }
+
+                    if (app.screenshots.isNotEmpty()) {
+                        item {
+                            Screenshots(
+                                screenshots = app.screenshots,
+                                onNavigateToScreenshot = { showExtraPane(ExtraScreen.Screenshot(it)) }
+                            )
+                        }
+                    }
+
+                    item {
+                        PlayStoreDetailsAboutSection(
+                            app = app,
+                            onSeeMore = { showExtraPane(ExtraScreen.More) }
+                        )
+                    }
+
+                    item {
+                        PlayStoreDetailsDataSafetySection(
+                            onSeeMore = { showExtraPane(ExtraScreen.DataSafety) }
+                        )
                     }
 
                     item {
                         Changelog(changelog = app.changes)
-                    }
-
-                    item {
-                        SectionHeader(
-                            title = stringResource(R.string.details_more_about_app),
-                            subtitle = app.shortDescription,
-                            onClick = { showExtraPane(ExtraScreen.More) }
-                        )
-                    }
-
-                    item {
-                        Screenshots(
-                            screenshots = app.screenshots,
-                            onNavigateToScreenshot = { showExtraPane(ExtraScreen.Screenshot(it)) }
-                        )
                     }
 
                     item {
@@ -509,15 +453,6 @@ private fun ScreenContentApp(
                                 null
                             }
                         )
-                    }
-
-                    item {
-                        if (dataSafetyReport != null) {
-                            DataSafety(
-                                report = dataSafetyReport,
-                                privacyPolicyUrl = app.privacyPolicyUrl
-                            )
-                        }
                     }
 
                     item {
@@ -594,6 +529,11 @@ private fun ScreenContentApp(
         is ExtraScreen.More -> MoreScreen(
             packageName = app.packageName,
             onNavigateTo = onNavigateTo
+        )
+
+        is ExtraScreen.DataSafety -> DataSafetyScreen(
+            report = dataSafetyReport,
+            privacyPolicyUrl = app.privacyPolicyUrl
         )
 
         is ExtraScreen.Permission -> PermissionScreen(

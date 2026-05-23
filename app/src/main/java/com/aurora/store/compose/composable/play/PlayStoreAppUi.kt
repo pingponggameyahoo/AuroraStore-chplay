@@ -99,6 +99,28 @@ internal fun App.playDetailsMetaTagLine(context: Context): String? {
     return tags.takeIf { it.isNotEmpty() }?.joinToString(separator = " • ")
 }
 
+internal fun App.isPlayGame(): Boolean {
+    val category = categoryName.uppercase(Locale.getDefault())
+    if (category.contains("GAME")) return true
+    return tags.any { it.name.uppercase(Locale.getDefault()).contains("GAME") } ||
+        chips.any { it.title.uppercase(Locale.getDefault()).contains("GAME") }
+}
+
+internal fun App.playDetailsGenreChips(): List<String> {
+    val fromTagsLine = playGenreTagsLine()
+        .split(" • ")
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+    if (fromTagsLine.isNotEmpty()) return fromTagsLine
+
+    val category = categoryName.trim()
+    return when {
+        category.isBlank() -> emptyList()
+        category.isPlayGenreEnum() -> listOf(category.humanizePlayGenreEnum())
+        else -> listOf(category)
+    }
+}
+
 internal fun App.playDetailsMetaTags(context: Context): List<String> = buildList {
     if (containsAds) {
         add(context.getString(R.string.details_contains_ads))

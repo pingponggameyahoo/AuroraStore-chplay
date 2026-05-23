@@ -30,6 +30,8 @@
     <color name="play_details_secondary_text">#444746</color>
     <color name="play_details_info_icon">#444746</color>
     <color name="play_details_info_divider">#DADCE0</color>
+    <color name="play_details_chip_border">#DADCE0</color>
+    <color name="play_details_nav_button_background">#F1F3F4</color>
 
     <!-- Play Store home sub-nav tabs (Cho bạn, Bảng xếp hạng, …) -->
     <color name="play_tab_selected">#0B57D0</color>
