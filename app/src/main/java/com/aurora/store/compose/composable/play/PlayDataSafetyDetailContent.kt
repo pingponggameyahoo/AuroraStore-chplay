@@ -57,6 +57,10 @@ fun PlayDataSafetyDetailContent(
     val horizontalPadding = dimensionResource(R.dimen.play_details_section_horizontal_padding)
     val cardCorner = dimensionResource(R.dimen.play_details_data_safety_card_corner)
     val sheetTopCorner = dimensionResource(R.dimen.play_data_safety_sheet_top_corner)
+    val sectionGap = dimensionResource(R.dimen.play_data_safety_detail_section_gap)
+    val textGap = dimensionResource(R.dimen.play_data_safety_detail_text_gap)
+    val dividerVertical = dimensionResource(R.dimen.play_data_safety_detail_divider_vertical)
+    val subItemTop = dimensionResource(R.dimen.play_data_safety_detail_sub_item_top)
     val learnMore = stringResource(R.string.play_data_safety_learn_more)
     val privacyPolicy = stringResource(R.string.play_data_safety_privacy_policy)
     val openPrivacyPolicy = {
@@ -76,14 +80,14 @@ fun PlayDataSafetyDetailContent(
             secondaryText = secondaryText,
             modifier = Modifier.padding(
                 horizontal = horizontalPadding,
-                vertical = dimensionResource(R.dimen.spacing_medium)
+                vertical = dimensionResource(R.dimen.spacing_large)
             )
         )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = horizontalPadding)
-                .padding(bottom = dimensionResource(R.dimen.spacing_medium))
+                .padding(bottom = dimensionResource(R.dimen.spacing_large))
                 .clip(RoundedCornerShape(cardCorner))
                 .background(Color.White)
                 .padding(dimensionResource(R.dimen.spacing_large)),
@@ -119,11 +123,13 @@ fun PlayDataSafetyDetailContent(
                 .padding(bottom = dimensionResource(R.dimen.spacing_xlarge))
         ) {
             Column(
-                modifier = Modifier.padding(
-                    horizontal = horizontalPadding,
-                    vertical = dimensionResource(R.dimen.spacing_large)
-                ),
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
+                modifier = Modifier
+                    .padding(horizontal = horizontalPadding)
+                    .padding(
+                        top = dimensionResource(R.dimen.spacing_xlarge),
+                        bottom = dividerVertical
+                    ),
+                verticalArrangement = Arrangement.spacedBy(sectionGap)
             ) {
                 Text(
                     text = stringResource(R.string.play_details_data_safety_title),
@@ -143,13 +149,18 @@ fun PlayDataSafetyDetailContent(
                     onLinkClick = openPrivacyPolicy
                 )
             }
-            HorizontalDivider(color = dividerColor)
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = dividerVertical),
+                color = dividerColor
+            )
             PlayDataSafetyDetailMainSection(
                 iconRes = R.drawable.ic_play_data_safety_share,
                 title = stringResource(R.string.play_data_safety_no_share_title),
                 primaryText = primaryText,
                 secondaryText = secondaryText,
-                horizontalPadding = horizontalPadding
+                horizontalPadding = horizontalPadding,
+                sectionGap = sectionGap,
+                textGap = textGap
             ) {
                 PlayDataSafetyUnderlinedLinkText(
                     fullText = stringResource(
@@ -162,7 +173,7 @@ fun PlayDataSafetyDetailContent(
                 )
             }
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = dimensionResource(R.dimen.spacing_large)),
+                modifier = Modifier.padding(vertical = dividerVertical),
                 color = dividerColor
             )
             PlayDataSafetyDetailMainSection(
@@ -170,7 +181,9 @@ fun PlayDataSafetyDetailContent(
                 title = stringResource(R.string.play_data_safety_no_collect_title),
                 primaryText = primaryText,
                 secondaryText = secondaryText,
-                horizontalPadding = horizontalPadding
+                horizontalPadding = horizontalPadding,
+                sectionGap = sectionGap,
+                textGap = textGap
             ) {
                 Text(
                     text = stringResource(R.string.play_data_safety_detail_no_collect_body),
@@ -181,7 +194,7 @@ fun PlayDataSafetyDetailContent(
                 )
             }
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = dimensionResource(R.dimen.spacing_large)),
+                modifier = Modifier.padding(vertical = dividerVertical),
                 color = dividerColor
             )
             PlayDataSafetyDetailMainSection(
@@ -189,13 +202,16 @@ fun PlayDataSafetyDetailContent(
                 title = stringResource(R.string.play_data_safety_security_title),
                 primaryText = primaryText,
                 secondaryText = secondaryText,
-                horizontalPadding = horizontalPadding
+                horizontalPadding = horizontalPadding,
+                sectionGap = sectionGap,
+                textGap = textGap
             ) {
                 PlayDataSafetyDetailSubRow(
                     iconRes = R.drawable.ic_play_lock_outline,
                     title = stringResource(R.string.play_data_safety_encrypted_title),
                     primaryText = primaryText,
-                    secondaryText = secondaryText
+                    secondaryText = secondaryText,
+                    textGap = textGap
                 ) {
                     Text(
                         text = stringResource(R.string.play_data_safety_encrypted_body),
@@ -207,7 +223,7 @@ fun PlayDataSafetyDetailContent(
                 }
             }
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = dimensionResource(R.dimen.spacing_large)),
+                modifier = Modifier.padding(vertical = dividerVertical),
                 color = dividerColor
             )
             PlayDataSafetyDetailMainSection(
@@ -215,7 +231,9 @@ fun PlayDataSafetyDetailContent(
                 title = stringResource(R.string.play_data_safety_deletion_section_title),
                 primaryText = primaryText,
                 secondaryText = secondaryText,
-                horizontalPadding = horizontalPadding
+                horizontalPadding = horizontalPadding,
+                sectionGap = sectionGap,
+                textGap = textGap
             ) {
                 PlayDataSafetyUnderlinedLinkText(
                     fullText = stringResource(
@@ -227,11 +245,12 @@ fun PlayDataSafetyDetailContent(
                     onLinkClick = openPrivacyPolicy
                 )
                 PlayDataSafetyDetailSubRow(
-                    modifier = Modifier.padding(top = dimensionResource(R.dimen.spacing_large)),
+                    modifier = Modifier.padding(top = subItemTop),
                     iconRes = R.drawable.ic_play_data_safety_no_delete,
                     title = stringResource(R.string.play_data_safety_deletion_no_info_title),
                     primaryText = primaryText,
-                    secondaryText = secondaryText
+                    secondaryText = secondaryText,
+                    textGap = textGap
                 ) {
                     PlayDataSafetyUnderlinedLinkText(
                         fullText = stringResource(
@@ -245,13 +264,14 @@ fun PlayDataSafetyDetailContent(
                 }
             }
             HorizontalDivider(
-                modifier = Modifier.padding(vertical = dimensionResource(R.dimen.spacing_large)),
+                modifier = Modifier.padding(vertical = dividerVertical),
                 color = dividerColor
             )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = horizontalPadding),
+                    .padding(horizontal = horizontalPadding)
+                    .padding(bottom = dimensionResource(R.dimen.spacing_xlarge)),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.Top
             ) {
@@ -324,6 +344,8 @@ private fun PlayDataSafetyDetailMainSection(
     primaryText: Color,
     secondaryText: Color,
     horizontalPadding: androidx.compose.ui.unit.Dp,
+    sectionGap: androidx.compose.ui.unit.Dp,
+    textGap: androidx.compose.ui.unit.Dp,
     content: @Composable () -> Unit
 ) {
     val iconCircleSize = dimensionResource(R.dimen.play_data_safety_icon_circle_size)
@@ -333,7 +355,7 @@ private fun PlayDataSafetyDetailMainSection(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = horizontalPadding),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
+        verticalArrangement = Arrangement.spacedBy(sectionGap)
     ) {
         Box(
             modifier = Modifier
@@ -349,15 +371,17 @@ private fun PlayDataSafetyDetailMainSection(
                 tint = secondaryText
             )
         }
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontSize = 16.sp,
-            lineHeight = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = primaryText
-        )
-        content()
+        Column(verticalArrangement = Arrangement.spacedBy(textGap)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontSize = 16.sp,
+                lineHeight = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = primaryText
+            )
+            content()
+        }
     }
 }
 
@@ -367,6 +391,7 @@ private fun PlayDataSafetyDetailSubRow(
     title: String,
     primaryText: Color,
     secondaryText: Color,
+    textGap: androidx.compose.ui.unit.Dp,
     modifier: Modifier = Modifier,
     body: @Composable () -> Unit
 ) {
@@ -385,7 +410,7 @@ private fun PlayDataSafetyDetailSubRow(
         )
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(textGap)
         ) {
             Text(
                 text = title,
