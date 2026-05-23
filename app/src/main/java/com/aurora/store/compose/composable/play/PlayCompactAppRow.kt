@@ -24,15 +24,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewWrapper
+import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.aurora.gplayapi.data.models.App
+import com.aurora.gplayapi.data.models.Tag
 import com.aurora.store.R
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.ThemePreviewProvider
@@ -44,6 +45,9 @@ fun PlayCompactAppRow(
     onClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val genreLine = app.playGenreTagsLine()
+    val rating = app.playRatingDisplay()
+    val fileSize = app.playFileSizeLabel()
 
     Row(
         modifier = modifier
@@ -66,24 +70,40 @@ fun PlayCompactAppRow(
         )
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            verticalArrangement = Arrangement.spacedBy(3.dp)
         ) {
             Text(
                 text = app.displayName,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            val subtitle = app.compactSubtitleLine()
-            if (subtitle.isNotBlank()) {
+            if (genreLine.isNotBlank()) {
                 Text(
-                    text = subtitle,
+                    text = genreLine,
                     style = MaterialTheme.typography.bodySmall,
                     color = colorResource(R.color.play_store_text_secondary),
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (rating != null) {
+                    PlayRatingBadge(rating = rating)
+                }
+                if (fileSize != null) {
+                    Text(
+                        text = fileSize,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colorResource(R.color.play_store_text_secondary),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
@@ -93,5 +113,15 @@ fun PlayCompactAppRow(
 @Preview(showBackground = true)
 @Composable
 private fun PlayCompactAppRowPreview(@PreviewParameter(AppPreviewProvider::class) app: App) {
-    PlayCompactAppRow(app = app, modifier = Modifier.padding(horizontal = 16.dp))
+    PlayCompactAppRow(
+        app = app.copy(
+            tags = listOf(
+                Tag(name = "Xã hội"),
+                Tag(name = "Xây dựng mối quan hệ")
+            ),
+            labeledRating = "4.1",
+            size = 60L * 1024 * 1024
+        ),
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
 }

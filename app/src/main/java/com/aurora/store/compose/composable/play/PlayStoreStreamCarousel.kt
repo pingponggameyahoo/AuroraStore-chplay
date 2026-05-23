@@ -53,6 +53,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 private const val LOAD_MORE_THRESHOLD = 2
 private const val TRIPLE_ROW_PAGE_SIZE = 3
+/** Fraction of the next column's icon visible at the right edge (Play home peek). */
+private const val TRIPLE_COLUMN_PEEK_ICON_FRACTION = 0.10f
 
 @Composable
 fun PlayStoreStreamCarousel(
@@ -207,24 +209,24 @@ private fun PlayTripleColumnCarousel(
         if (reachedEnd && cluster.hasNext()) onClusterScrolled(cluster)
     }
 
-    val columnWidth = dimensionResource(R.dimen.play_triple_column_width)
+    val configuration = LocalConfiguration.current
     val horizontalInset = dimensionResource(R.dimen.play_featured_card_horizontal_inset)
+    val iconSize = dimensionResource(R.dimen.play_compact_app_icon)
+    val columnSpacing = dimensionResource(R.dimen.play_triple_column_spacing)
+    val columnPeek = iconSize * TRIPLE_COLUMN_PEEK_ICON_FRACTION + columnSpacing
+    val columnWidth = configuration.screenWidthDp.dp - horizontalInset - columnPeek
 
     LazyRow(
         state = rowState,
-        contentPadding = PaddingValues(horizontal = horizontalInset),
-        horizontalArrangement = Arrangement.spacedBy(
-            dimensionResource(R.dimen.play_triple_column_spacing)
-        )
+        contentPadding = PaddingValues(start = horizontalInset),
+        horizontalArrangement = Arrangement.spacedBy(columnSpacing)
     ) {
         itemsIndexed(
             items = pages,
             key = { index, _ -> "${cluster.id}_page_$index" }
         ) { _, pageApps ->
             Column(
-                modifier = Modifier
-                    .width(columnWidth)
-                    .padding(horizontal = dimensionResource(R.dimen.spacing_xsmall)),
+                modifier = Modifier.width(columnWidth),
                 verticalArrangement = Arrangement.spacedBy(
                     dimensionResource(R.dimen.play_compact_row_spacing)
                 )
@@ -295,7 +297,7 @@ private fun PlayFeaturedShimmer() {
             .padding(horizontal = dimensionResource(R.dimen.play_featured_card_horizontal_inset)),
         shape = RoundedCornerShape(dimensionResource(R.dimen.play_featured_card_corner)),
         colors = CardDefaults.cardColors(
-            containerColor = colorResource(R.color.play_store_card_surface)
+            containerColor = colorResource(R.color.play_store_featured_card_background)
         )
     ) {
         Column(

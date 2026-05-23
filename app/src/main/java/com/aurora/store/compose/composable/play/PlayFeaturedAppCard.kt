@@ -6,7 +6,6 @@
 package com.aurora.store.compose.composable.play
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,15 +63,10 @@ fun PlayFeaturedAppCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .border(
-                width = 1.dp,
-                color = colorResource(R.color.play_tab_divider),
-                shape = cardShape
-            )
             .clickable(onClick = onClick),
         shape = cardShape,
         colors = CardDefaults.cardColors(
-            containerColor = colorResource(R.color.play_store_card_surface)
+            containerColor = colorResource(R.color.play_store_featured_card_background)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
