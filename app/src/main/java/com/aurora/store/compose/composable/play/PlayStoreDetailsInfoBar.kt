@@ -202,8 +202,8 @@ private fun PlayDetailsStatCell(
                     Icon(
                         painter = painterResource(R.drawable.ic_play_details_download),
                         contentDescription = primary.sizeLabel,
-                        modifier = Modifier.requiredSize(20.dp),
-                        tint = colorResource(R.color.play_details_primary_text)
+                        modifier = Modifier.requiredSize(22.dp),
+                        tint = colorResource(R.color.play_details_secondary_text)
                     )
                 }
 
