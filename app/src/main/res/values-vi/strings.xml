@@ -469,4 +469,22 @@
     <string name="play_data_safety_deletion_no_info_body">"Dữ liệu có thể tự động được xoá theo thời gian. Xem %1$s của nhà phát triển để tìm hiểu cách họ sử dụng dữ liệu."</string>
     <string name="play_data_safety_privacy_policy">"chính sách quyền riêng tư"</string>
     <string name="play_data_safety_footer">"Để tìm hiểu thêm, hãy xem %1$s của nhà phát triển"</string>
+    <string name="play_more_subtitle">"Chi tiết"</string>
+    <string name="play_more_whats_new">"Tính năng mới"</string>
+    <string name="play_more_other_info">"Thông tin khác"</string>
+    <string name="play_more_game_info">"Thông tin trò chơi"</string>
+    <string name="play_more_app_info">"Thông tin ứng dụng"</string>
+    <string name="play_more_version">"Phiên bản"</string>
+    <string name="play_more_updated_on">"Cập nhật vào"</string>
+    <string name="play_more_downloads">"Tải xuống"</string>
+    <string name="play_more_download_size">"Kích thước tải xuống"</string>
+    <string name="play_more_required_os">"Hệ điều hành cần dùng"</string>
+    <string name="play_more_provider">"Nhà cung cấp"</string>
+    <string name="play_more_released_on">"Ngày phát hành"</string>
+    <string name="play_more_permissions">"Quyền của ứng dụng"</string>
+    <string name="play_more_see_more">"Xem thêm"</string>
+    <string name="play_more_device_compatibility">"Khả năng tương thích với thiết bị đang hoạt động"</string>
+    <string name="play_more_device_this_device">"%1$s (thiết bị này)"</string>
+    <string name="play_more_compatibility">"Khả năng tương thích"</string>
+    <string name="play_more_compatible">"Tương thích với thiết bị của bạn"</string>
 </resources>

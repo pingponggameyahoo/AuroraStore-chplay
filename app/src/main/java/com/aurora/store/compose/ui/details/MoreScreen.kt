@@ -6,7 +6,6 @@
 
 package com.aurora.store.compose.ui.details
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,25 +23,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewWrapper
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aurora.extensions.adaptiveNavigationIcon
-import com.aurora.extensions.isWindowCompact
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
 import com.aurora.store.compose.composable.Info
 import com.aurora.store.compose.composable.ScrollHint
-import com.aurora.store.compose.composable.SectionHeader
 import com.aurora.store.compose.composable.TopAppBar
 import com.aurora.store.compose.composable.app.AppListItem
+import com.aurora.store.compose.composable.play.PlayMoreAboutSections
+import com.aurora.store.compose.composable.play.PlayMoreAboutToolbarTitle
+import com.aurora.store.compose.composable.play.PlayMoreSectionDivider
 import com.aurora.store.compose.navigation.Destination
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.ThemePreviewProvider
@@ -53,6 +55,7 @@ import com.aurora.store.viewmodel.details.MoreViewModel
 fun MoreScreen(
     packageName: String,
     onNavigateTo: (Destination) -> Unit,
+    onSeePermissions: () -> Unit = {},
     appDetailsViewModel: AppDetailsViewModel = hiltViewModel(key = packageName),
     moreViewModel: MoreViewModel = hiltViewModel(
         key = "$packageName/more",
@@ -67,7 +70,8 @@ fun MoreScreen(
     ScreenContent(
         app = app!!,
         dependencies = dependencies,
-        onNavigateTo = onNavigateTo
+        onNavigateTo = onNavigateTo,
+        onSeePermissions = onSeePermissions
     )
 }
 
@@ -76,17 +80,19 @@ private fun ScreenContent(
     app: App,
     dependencies: List<App>? = null,
     onNavigateTo: (Destination) -> Unit = {},
+    onSeePermissions: () -> Unit = {},
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfoV2()
 ) {
-    val topAppBarTitle = when {
-        windowAdaptiveInfo.isWindowCompact -> app.displayName
-        else -> stringResource(R.string.details_more_about_app)
-    }
+    val dividerColor = colorResource(R.color.play_details_chip_border)
+    val horizontalPadding = dimensionResource(R.dimen.play_more_section_horizontal_padding)
+    val primaryText = colorResource(R.color.play_details_primary_text)
+    val secondaryText = colorResource(R.color.play_details_secondary_text)
 
     Scaffold(
+        containerColor = androidx.compose.ui.graphics.Color.White,
         topBar = {
             TopAppBar(
-                title = topAppBarTitle,
+                titleContent = { PlayMoreAboutToolbarTitle(app = app) },
                 navigationIcon = windowAdaptiveInfo.adaptiveNavigationIcon
             )
         }
@@ -99,38 +105,63 @@ private fun ScreenContent(
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                state = listState,
-                verticalArrangement = Arrangement.spacedBy(
-                    dimensionResource(R.dimen.spacing_medium)
-                )
+                state = listState
             ) {
                 item {
-                    SectionHeader(title = stringResource(R.string.details_description))
+                    PlayMoreSectionDivider(color = dividerColor)
                 }
 
                 item {
                     Text(
-                        modifier = Modifier.padding(
-                            horizontal = dimensionResource(R.dimen.spacing_medium)
-                        ),
-                        text = AnnotatedString.fromHtml(
-                            htmlString = app.description
-                        ),
-                        style = MaterialTheme.typography.bodyMedium
+                        text = stringResource(R.string.details_description),
+                        modifier = Modifier
+                            .padding(horizontal = horizontalPadding)
+                            .padding(
+                                top = dimensionResource(R.dimen.spacing_large),
+                                bottom = dimensionResource(R.dimen.spacing_small)
+                            ),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 16.sp,
+                        lineHeight = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = primaryText
                     )
                 }
 
                 item {
-                    if (dependencies != null) {
-                        AppDependencies(
-                            dependencies = dependencies,
-                            onNavigateTo = onNavigateTo
-                        )
-                    }
+                    Text(
+                        modifier = Modifier
+                            .padding(horizontal = horizontalPadding)
+                            .padding(bottom = dimensionResource(R.dimen.spacing_large)),
+                        text = AnnotatedString.fromHtml(htmlString = app.description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        color = secondaryText
+                    )
+                }
+
+                //if (dependencies != null) {
+                //    item {
+                //        PlayMoreSectionDivider(color = dividerColor)
+                //    }
+                //    item {
+                //        AppDependencies(
+                //            dependencies = dependencies,
+                //            onNavigateTo = onNavigateTo
+                //        )
+                //    }
+                //}
+
+                item {
+                    PlayMoreSectionDivider(color = dividerColor)
                 }
 
                 item {
-                    AppInfoMore(app = app)
+                    PlayMoreAboutSections(
+                        app = app,
+                        onSeePermissions = onSeePermissions
+                    )
                 }
             }
             ScrollHint(
@@ -146,65 +177,33 @@ private fun ScreenContent(
  */
 @Composable
 private fun AppDependencies(dependencies: List<App>, onNavigateTo: (Destination) -> Unit) {
-    SectionHeader(title = stringResource(R.string.details_dependencies))
+    Text(
+        text = stringResource(R.string.details_dependencies),
+        modifier = Modifier
+            .padding(horizontal = dimensionResource(R.dimen.play_more_section_horizontal_padding))
+            .padding(
+                top = dimensionResource(R.dimen.play_more_section_title_top),
+                bottom = dimensionResource(R.dimen.spacing_small)
+            ),
+        style = MaterialTheme.typography.titleMedium,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.Bold,
+        color = colorResource(R.color.play_details_primary_text)
+    )
     if (dependencies.isEmpty()) {
         Info(
+            modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_medium)),
             title = AnnotatedString(text = stringResource(R.string.details_no_dependencies))
         )
     } else {
         LazyRow(modifier = Modifier.fillMaxWidth()) {
-            items(items = dependencies, key = { item -> item.id }) { app ->
+            items(items = dependencies, key = { item -> item.id }) { dependency ->
                 AppListItem(
-                    app = app,
-                    onClick = { onNavigateTo(Destination.AppDetails(app.packageName)) }
+                    app = dependency,
+                    onClick = { onNavigateTo(Destination.AppDetails(dependency.packageName)) }
                 )
             }
         }
-    }
-}
-
-/**
- * Composable to show more information about the app that maybe advanced
- */
-@Composable
-private fun AppInfoMore(app: App) {
-    SectionHeader(title = stringResource(R.string.details_more_info))
-    Info(
-        title = AnnotatedString(
-            text = stringResource(R.string.details_more_package_name)
-        ),
-        description = AnnotatedString(text = app.packageName)
-    )
-
-    Info(
-        title = AnnotatedString(
-            text = stringResource(R.string.details_more_target_api)
-        ),
-        description = AnnotatedString(text = "API ${app.targetSdk}")
-    )
-
-    Info(
-        title = AnnotatedString(
-            text = stringResource(R.string.details_more_content_rating)
-        ),
-        description = AnnotatedString(text = app.contentRating.title)
-    )
-
-    app.appInfo.appInfoMap.forEach { (title, subtitle) ->
-        Info(
-            title = AnnotatedString(
-                text = title.replace("_", " ")
-                    .lowercase(LocalLocale.current.platformLocale)
-                    .replaceFirstChar {
-                        if (it.isLowerCase()) {
-                            it.titlecase(LocalLocale.current.platformLocale)
-                        } else {
-                            it.toString()
-                        }
-                    }
-            ),
-            description = AnnotatedString(text = subtitle)
-        )
     }
 }
 

@@ -103,4 +103,7 @@
     <dimen name="play_data_safety_detail_text_gap">8dp</dimen>
     <dimen name="play_data_safety_detail_divider_vertical">28dp</dimen>
     <dimen name="play_data_safety_detail_sub_item_top">20dp</dimen>
+    <dimen name="play_more_section_horizontal_padding">16dp</dimen>
+    <dimen name="play_more_row_vertical_padding">14dp</dimen>
+    <dimen name="play_more_section_title_top">20dp</dimen>
 </resources>

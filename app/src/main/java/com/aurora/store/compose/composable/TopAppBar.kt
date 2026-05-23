@@ -28,6 +28,7 @@ import com.aurora.store.compose.preview.ThemePreviewProvider
  * A top app bar composable to be used with Scaffold in different Screen
  * @param modifier The modifier to be applied to the composable
  * @param title Title of the screen
+ * @param titleContent Optional composable title (takes precedence over [title])
  * @param navigationIcon Icon for the navigation button
  * @param showNavigationIcon Whether to show the navigation (back) icon button
  * @param actions Actions to display on the top app bar (for e.g. menu)
@@ -36,6 +37,7 @@ import com.aurora.store.compose.preview.ThemePreviewProvider
 fun TopAppBar(
     modifier: Modifier = Modifier,
     title: String? = null,
+    titleContent: @Composable (() -> Unit)? = null,
     navigationIcon: Painter = painterResource(R.drawable.ic_arrow_back),
     showNavigationIcon: Boolean = true,
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
@@ -44,7 +46,12 @@ fun TopAppBar(
     val activity = LocalActivity.current as? ComponentActivity
     TopAppBar(
         modifier = modifier,
-        title = { if (title != null) Text(text = title) },
+        title = {
+            when {
+                titleContent != null -> titleContent()
+                title != null -> Text(text = title)
+            }
+        },
         navigationIcon = {
             if (showNavigationIcon) {
                 IconButton(onClick = { activity?.onBackPressedDispatcher?.onBackPressed() }) {

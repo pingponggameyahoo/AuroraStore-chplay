@@ -528,7 +528,8 @@ private fun ScreenContentApp(
 
         is ExtraScreen.More -> MoreScreen(
             packageName = app.packageName,
-            onNavigateTo = onNavigateTo
+            onNavigateTo = onNavigateTo,
+            onSeePermissions = { showExtraPane(ExtraScreen.Permission) }
         )
 
         is ExtraScreen.DataSafety -> DataSafetyScreen(

@@ -234,6 +234,77 @@ private fun String.hasPlayInstallsMorePrefix(): Boolean {
 private fun String.isPlayGenreEnum(): Boolean =
     PLAY_GENRE_ENUM_REGEX.matches(this) && contains('_')
 
+internal data class PlayMoreInfoRow(
+    val label: String,
+    val value: String,
+    val isLink: Boolean = false
+)
+
+internal fun App.playMoreInfoRows(context: Context): List<PlayMoreInfoRow> = buildList {
+    if (versionName.isNotBlank()) {
+        add(PlayMoreInfoRow(label = context.getString(R.string.play_more_version), value = versionName))
+    }
+    if (updatedOn.isNotBlank()) {
+        add(PlayMoreInfoRow(label = context.getString(R.string.play_more_updated_on), value = updatedOn))
+    }
+    playInstallsHeadlineWithPrefix(context)?.let { downloads ->
+        add(PlayMoreInfoRow(label = context.getString(R.string.play_more_downloads), value = downloads))
+    }
+    val downloadSize = playFileSizeLabel()
+    if (downloadSize.isNotBlank()) {
+        add(
+            PlayMoreInfoRow(
+                label = context.getString(R.string.play_more_download_size),
+                value = downloadSize
+            )
+        )
+    }
+    playMoreAndroidRequirement()?.let { os ->
+        add(PlayMoreInfoRow(label = context.getString(R.string.play_more_required_os), value = os))
+    }
+    if (developerName.isNotBlank()) {
+        add(
+            PlayMoreInfoRow(
+                label = context.getString(R.string.play_more_provider),
+                value = developerName
+            )
+        )
+    }
+    playMoreReleaseDate()?.let { released ->
+        add(PlayMoreInfoRow(label = context.getString(R.string.play_more_released_on), value = released))
+    }
+}
+
+internal fun App.playMoreAndroidRequirement(): String? {
+    appInfo.appInfoMap.forEach { (key, value) ->
+        val normalizedKey = key.lowercase(Locale.getDefault())
+        if (
+            normalizedKey.contains("android") ||
+            normalizedKey.contains("operating") ||
+            normalizedKey.contains("os")
+        ) {
+            value.trim().takeIf { it.isNotBlank() }?.let { return it }
+        }
+    }
+    return appInfo.appInfoMap.values.firstOrNull { value ->
+        value.contains("Android", ignoreCase = true)
+    }?.trim()?.takeIf { it.isNotBlank() }
+}
+
+internal fun App.playMoreReleaseDate(): String? {
+    appInfo.appInfoMap.forEach { (key, value) ->
+        val normalizedKey = key.lowercase(Locale.getDefault())
+        if (
+            normalizedKey.contains("release") ||
+            normalizedKey.contains("published") ||
+            normalizedKey.contains("phát hành")
+        ) {
+            value.trim().takeIf { it.isNotBlank() }?.let { return it }
+        }
+    }
+    return null
+}
+
 private fun String.humanizePlayGenreEnum(): String {
     if (!isPlayGenreEnum()) return this
     return removePrefix("GAME_")
