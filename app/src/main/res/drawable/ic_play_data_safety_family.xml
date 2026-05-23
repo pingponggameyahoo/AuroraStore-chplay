@@ -1,23 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Play data safety: baby face — circle head, curl, dot eyes, open smile -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
+    <!-- Head -->
     <path
         android:fillColor="#00000000"
-        android:pathData="M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z"
-        android:strokeWidth="1.5"
-        android:strokeColor="#FF444746" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M8.5,10.5 C8.5,9.4 9.4,8.5 10.5,8.5 C11.6,8.5 12.5,9.4 12.5,10.5 C12.5,11.6 11.6,12.5 10.5,12.5 C9.4,12.5 8.5,11.6 8.5,10.5 Z M13.5,10.5 C13.5,9.4 14.4,8.5 15.5,8.5 C16.6,8.5 17.5,9.4 17.5,10.5 C17.5,11.6 16.6,12.5 15.5,12.5 C14.4,12.5 13.5,11.6 13.5,10.5 Z"
-        android:strokeWidth="1.5"
-        android:strokeColor="#FF444746" />
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M7.5,15.5 C8.2,14.2 9.7,13.25 11.5,13.25 C13.3,13.25 14.8,14.2 15.5,15.5"
-        android:strokeWidth="1.5"
+        android:pathData="M12,12 m-8,0 a8,8 0 1,1 16,0 a8,8 0 1,1 -16,0"
+        android:strokeWidth="1.75"
         android:strokeColor="#FF444746"
-        android:strokeLineCap="round" />
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <!-- Hair curl (top, slightly left of center) -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M10.9,5.5 C10.5,4.95 11.1,4.55 11.7,4.85 C12.15,5.05 12.2,5.45 11.75,5.6"
+        android:strokeWidth="1.75"
+        android:strokeColor="#FF444746"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+    <!-- Eyes -->
+    <path
+        android:fillColor="#FF444746"
+        android:pathData="M9.25,10.25 m-0.9,0 a0.9,0.9 0 1,1 1.8,0 a0.9,0.9 0 1,1 -1.8,0" />
+    <path
+        android:fillColor="#FF444746"
+        android:pathData="M14.75,10.25 m-0.9,0 a0.9,0.9 0 1,1 1.8,0 a0.9,0.9 0 1,1 -1.8,0" />
+    <!-- Open smile: flat top, rounded bottom -->
+    <path
+        android:fillColor="#FF444746"
+        android:pathData="M8.75,14.25 H15.25 C15.25,16.95 13.85,17.6 12,17.6 C10.15,17.6 8.75,16.95 8.75,14.25 Z" />
 </vector>
