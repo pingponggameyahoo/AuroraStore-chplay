@@ -106,4 +106,9 @@
     <dimen name="play_more_section_horizontal_padding">16dp</dimen>
     <dimen name="play_more_row_vertical_padding">14dp</dimen>
     <dimen name="play_more_section_title_top">20dp</dimen>
+    <dimen name="play_rating_summary_star_size">16dp</dimen>
+    <dimen name="play_rating_review_star_size">12dp</dimen>
+    <dimen name="play_rating_distribution_bar_height">8dp</dimen>
+    <dimen name="play_rating_distribution_label_width">12dp</dimen>
+    <dimen name="play_review_avatar_size">32dp</dimen>
 </resources>

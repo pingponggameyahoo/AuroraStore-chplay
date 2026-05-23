@@ -270,6 +270,12 @@
     <string name="tab_for_you">"For you"</string>
     <string name="play_in_app_purchases">"In-app purchases"</string>
     <string name="play_details_review_count">"%1$s reviews"</string>
+    <string name="play_details_ratings_title">"Ratings and reviews"</string>
+    <string name="play_details_ratings_verified">"Ratings and reviews are verified and from people who use the same type of device as you"</string>
+    <string name="play_review_helpful_question">"Did you find this helpful?"</string>
+    <string name="play_review_helpful_yes">"Yes"</string>
+    <string name="play_review_helpful_no">"No"</string>
+    <string name="play_review_helpful_count">"%1$d people found this review helpful"</string>
     <string name="play_details_downloads_label">"Downloads"</string>
     <string name="play_details_installs_more_than">"More than %1$s"</string>
     <string name="play_details_age_fallback">"Content rating"</string>

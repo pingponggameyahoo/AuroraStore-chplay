@@ -438,6 +438,12 @@
         <item quantity="other">Cần có sự cho phép</item>
     </plurals>
     <string name="play_details_review_count">"%1$s bài đánh giá"</string>
+    <string name="play_details_ratings_title">"Điểm xếp hạng và bài đánh giá"</string>
+    <string name="play_details_ratings_verified">"Điểm xếp hạng và bài đánh giá đã được xác minh và do những người sử dụng cùng loại thiết bị với bạn đưa ra"</string>
+    <string name="play_review_helpful_question">"Bài đánh giá này có hữu ích không?"</string>
+    <string name="play_review_helpful_yes">"Có"</string>
+    <string name="play_review_helpful_no">"Không"</string>
+    <string name="play_review_helpful_count">"%1$d người thấy bài đánh giá này hữu ích"</string>
     <string name="play_details_downloads_label">"Lượt tải xuống"</string>
     <string name="play_details_installs_more_than">"Hơn %1$s"</string>
     <string name="play_details_age_fallback">"Xếp hạng nội dung"</string>
