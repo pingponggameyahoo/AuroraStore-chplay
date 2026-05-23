@@ -16,7 +16,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -40,7 +39,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aurora.store.MainViewModel
 import com.aurora.store.R
-import com.aurora.store.compose.composable.TopAppBar
+import com.aurora.store.compose.composable.PlayStoreTopBar
 import com.aurora.store.compose.composition.LocalNetworkStatus
 import com.aurora.store.compose.navigation.Destination
 import com.aurora.store.compose.ui.apps.AppsGamesScreen
@@ -211,30 +210,9 @@ private fun MainScreenBody(
     Scaffold(
         topBar = {
             if (showMainTopBar) {
-                TopAppBar(
-                    title = stringResource(
-                        when (currentPage) {
-                            MainPagerPage.GAMES -> R.string.title_games
-                            MainPagerPage.APPS -> R.string.title_apps
-                            MainPagerPage.UPDATES -> R.string.title_nav_books
-                            MainPagerPage.SEARCH -> R.string.action_search
-                            MainPagerPage.YOU -> R.string.title_nav_you
-                        }
-                    ),
-                    actions = {
-                        IconButton(onClick = { onNavigateTo(Destination.Downloads) }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_download_manager),
-                                contentDescription = stringResource(R.string.title_download_manager)
-                            )
-                        }
-                        IconButton(onClick = { showMoreSheet = true }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_settings_account),
-                                contentDescription = stringResource(R.string.title_more)
-                            )
-                        }
-                    }
+                PlayStoreTopBar(
+                    onNotificationClick = { onNavigateTo(Destination.Updates) },
+                    onAvatarClick = { showMoreSheet = true }
                 )
             }
         },
