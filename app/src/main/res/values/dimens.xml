@@ -86,4 +86,7 @@
     <dimen name="play_compact_app_icon">56dp</dimen>
     <dimen name="play_compact_row_spacing">14dp</dimen>
     <dimen name="play_section_spacing">12dp</dimen>
+    <dimen name="play_details_info_stat_min_width">88dp</dimen>
+    <dimen name="play_details_info_stat_horizontal_padding">12dp</dimen>
+    <dimen name="play_details_info_divider_height">40dp</dimen>
 </resources>

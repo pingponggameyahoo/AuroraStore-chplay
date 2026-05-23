@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Icon
@@ -38,6 +40,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import com.aurora.gplayapi.data.models.App
 import com.aurora.store.R
 import com.aurora.store.compose.composable.app.AnimatedAppIcon
+import com.aurora.store.compose.composable.play.PlayStoreDetailsInfoBar
 import com.aurora.store.compose.preview.AppPreviewProvider
 import com.aurora.store.compose.preview.ThemePreviewProvider
 import com.aurora.store.data.model.AppState
@@ -55,7 +58,9 @@ import com.aurora.store.util.PackageUtil
 fun Details(
     app: App,
     state: AppState = AppState.Unavailable,
-    onNavigateToDetailsDevProfile: (developerName: String) -> Unit = {}
+    onNavigateToDetailsDevProfile: (developerName: String) -> Unit = {},
+    onRatingInfoClick: () -> Unit = {},
+    onContentRatingInfoClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val versionName = if (state is AppState.Installed) state.versionName else app.versionName
@@ -106,64 +111,78 @@ fun Details(
         )
     }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(R.dimen.spacing_medium))
-    ) {
-        AnimatedAppIcon(
-            modifier = Modifier.requiredSize(dimensionResource(R.dimen.icon_size_large)),
-            iconUrl = app.iconArtwork.url,
-            inProgress = state.inProgress(),
-            progress = state.progress()
-        )
-        Column(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_small))) {
-            Text(
-                text = app.displayName,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(dimensionResource(R.dimen.spacing_medium))
+        ) {
+            AnimatedAppIcon(
+                modifier = Modifier.requiredSize(dimensionResource(R.dimen.icon_size_large)),
+                iconUrl = app.iconArtwork.url,
+                inProgress = state.inProgress(),
+                progress = state.progress()
             )
-            Text(
-                modifier = Modifier
-                    .clickable(onClick = { onNavigateToDetailsDevProfile(app.developerName) }),
-                text = app.developerName,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.primary
-            )
-            AnimatedContent(targetState = state::class) { cState ->
-                if (cState == AppState.Updatable::class) {
-                    UpdatableVersion()
-                    return@AnimatedContent
-                }
-
+            Column(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_small))) {
                 Text(
-                    style = MaterialTheme.typography.bodySmall,
-                    text = when (cState) {
-                        AppState.Downloading::class -> {
-                            "${Formatter.formatShortFileSize(context, speed)}/s" +
-                                ", " + CommonUtil.getETAString(context, timeRemaining)
-                        }
-
-                        AppState.Installing::class -> stringResource(R.string.action_installing)
-
-                        AppState.Queued::class -> stringResource(R.string.status_queued)
-
-                        AppState.Purchasing::class ->
-                            stringResource(R.string.preparing_to_download)
-
-                        AppState.Verifying::class ->
-                            stringResource(R.string.verifying_downloads)
-
-                        else -> {
-                            stringResource(R.string.version, versionName, versionCode)
-                        }
-                    }
+                    text = app.displayName,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
+                Text(
+                    modifier = Modifier
+                        .clickable(onClick = { onNavigateToDetailsDevProfile(app.developerName) }),
+                    text = app.developerName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                AnimatedContent(targetState = state::class) { cState ->
+                    when (cState) {
+                        AppState.Updatable::class -> UpdatableVersion()
+
+                        AppState.Downloading::class,
+                        AppState.Installing::class,
+                        AppState.Queued::class,
+                        AppState.Purchasing::class,
+                        AppState.Verifying::class -> {
+                            Text(
+                                style = MaterialTheme.typography.bodySmall,
+                                text = when (cState) {
+                                    AppState.Downloading::class -> {
+                                        "${Formatter.formatShortFileSize(context, speed)}/s" +
+                                            ", " + CommonUtil.getETAString(context, timeRemaining)
+                                    }
+
+                                    AppState.Installing::class ->
+                                        stringResource(R.string.action_installing)
+
+                                    AppState.Queued::class ->
+                                        stringResource(R.string.status_queued)
+
+                                    AppState.Purchasing::class ->
+                                        stringResource(R.string.preparing_to_download)
+
+                                    else -> stringResource(R.string.verifying_downloads)
+                                }
+                            )
+                        }
+
+                        else -> Spacer(modifier = Modifier)
+                    }
+                }
             }
         }
+
+        PlayStoreDetailsInfoBar(
+            app = app,
+            onRatingInfoClick = onRatingInfoClick,
+            onContentRatingInfoClick = onContentRatingInfoClick
+        )
+
+        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
     }
 }
 

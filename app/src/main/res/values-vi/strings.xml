@@ -437,4 +437,8 @@
     <plurals name="permissions_required">
         <item quantity="other">Cần có sự cho phép</item>
     </plurals>
+    <string name="play_details_review_count">"%1$s bài đánh giá"</string>
+    <string name="play_details_downloads_label">"Lượt tải xuống"</string>
+    <string name="play_details_installs_more_than">"Hơn %1$s"</string>
+    <string name="play_details_age_fallback">"Xếp hạng nội dung"</string>
 </resources>

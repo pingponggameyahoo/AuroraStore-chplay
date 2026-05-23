@@ -269,6 +269,10 @@
     <string name="tab_editor_choice">"Editor's choice"</string>
     <string name="tab_for_you">"For you"</string>
     <string name="play_in_app_purchases">"In-app purchases"</string>
+    <string name="play_details_review_count">"%1$s reviews"</string>
+    <string name="play_details_downloads_label">"Downloads"</string>
+    <string name="play_details_installs_more_than">"More than %1$s"</string>
+    <string name="play_details_age_fallback">"Content rating"</string>
     <string name="tab_top_charts">"Top charts"</string>
     <string name="tab_top_free">"Top free"</string>
     <string name="tab_top_grossing">"Top grossing"</string>

@@ -88,7 +88,6 @@ import com.aurora.store.compose.ui.details.composable.DeveloperDetails
 import com.aurora.store.compose.ui.details.composable.Privacy
 import com.aurora.store.compose.ui.details.composable.RatingAndReviews
 import com.aurora.store.compose.ui.details.composable.Screenshots
-import com.aurora.store.compose.ui.details.composable.Tags
 import com.aurora.store.compose.ui.details.composable.Testing
 import com.aurora.store.compose.ui.details.menu.AppDetailsMenu
 import com.aurora.store.compose.ui.details.menu.MenuItem
@@ -446,16 +445,14 @@ private fun ScreenContentApp(
                         Details(
                             app = app,
                             state = state,
-                            onNavigateToDetailsDevProfile = { showExtraPane(Screen.DevProfile(it)) }
+                            onNavigateToDetailsDevProfile = { showExtraPane(Screen.DevProfile(it)) },
+                            onRatingInfoClick = { showExtraPane(ExtraScreen.Review) },
+                            onContentRatingInfoClick = { showExtraPane(ExtraScreen.More) }
                         )
                     }
 
                     item {
                         SetupActions()
-                    }
-
-                    item {
-                        Tags(app = app)
                     }
 
                     item {
