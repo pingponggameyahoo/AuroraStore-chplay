@@ -8,27 +8,27 @@
     <path
         android:fillColor="#00000000"
         android:pathData="M7.75,6.25h8.5c0.97,0 1.75,0.78 1.75,1.75v8.5c0,0.97 -0.78,1.75 -1.75,1.75h-8.5c-0.97,0 -1.75,-0.78 -1.75,-1.75v-8.5c0,-0.97 0.78,-1.75 1.75,-1.75z"
-        android:strokeWidth="1.65"
+        android:strokeWidth="1.25"
         android:strokeColor="#FF000000"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
     <path
         android:fillColor="#00000000"
         android:pathData="M12,8.5v4.1"
-        android:strokeWidth="1.65"
+        android:strokeWidth="1.25"
         android:strokeColor="#FF000000"
         android:strokeLineCap="round" />
     <path
         android:fillColor="#00000000"
         android:pathData="M9.6,11.1 L12,13.5 L14.4,11.1"
-        android:strokeWidth="1.65"
+        android:strokeWidth="1.25"
         android:strokeColor="#FF000000"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
     <path
         android:fillColor="#00000000"
         android:pathData="M9.35,15.65h5.3"
-        android:strokeWidth="1.65"
+        android:strokeWidth="1.25"
         android:strokeColor="#FF000000"
         android:strokeLineCap="round" />
 </vector>
