@@ -6,6 +6,8 @@
 package com.aurora.store.compose.ui.apps
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,6 +26,7 @@ internal fun ForYouContent(
     section: StoreSection,
     viewModel: StreamViewModel,
     streamType: StreamContract.Type = StreamContract.Type.HOME,
+    contentListState: LazyListState = rememberLazyListState(),
     onAppClick: (App) -> Unit,
     onHeaderClick: (StreamCluster) -> Unit,
     onClusterScrolled: (StreamCluster) -> Unit,
@@ -40,6 +43,7 @@ internal fun ForYouContent(
     val streamBundle = (state as? ViewState.Success<*>)?.data as? HomeStash
     PlayStoreStreamCarousel(
         modifier = Modifier.fillMaxSize(),
+        lazyListState = contentListState,
         streamBundle = streamBundle?.get(category),
         onHeaderClick = onHeaderClick,
         onAppClick = onAppClick,

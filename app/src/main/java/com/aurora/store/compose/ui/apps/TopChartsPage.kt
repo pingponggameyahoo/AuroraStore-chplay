@@ -55,6 +55,7 @@ private const val LOAD_MORE_THRESHOLD = 2
 internal fun TopChartsContent(
     section: StoreSection,
     viewModel: TopChartViewModel,
+    contentListState: LazyListState = rememberLazyListState(),
     onAppClick: (App) -> Unit
 ) {
     val charts = listOf(
@@ -74,7 +75,7 @@ internal fun TopChartsContent(
     val selectedChart = charts[selectedIndex]
     val state by viewModel.state.collectForced(ViewState.Loading)
     val cluster = state.getDataAs<StreamCluster?>()
-    val listState = rememberLazyListState()
+    val listState = contentListState
 
     LaunchedEffect(selectedIndex) {
         listState.scrollToItem(0)
@@ -111,6 +112,7 @@ internal fun SingleChartListContent(
     section: StoreSection,
     tab: StoreTab,
     viewModel: TopChartViewModel,
+    contentListState: LazyListState = rememberLazyListState(),
     onAppClick: (App) -> Unit
 ) {
     val chartId = tab.bookChartId()
@@ -118,7 +120,7 @@ internal fun SingleChartListContent(
     val category = section.topChartCategory
     val state by viewModel.state.collectForced(ViewState.Loading)
     val cluster = state.getDataAs<StreamCluster?>()
-    val listState = rememberLazyListState()
+    val listState = contentListState
 
     LaunchedEffect(category, chartId) {
         listState.scrollToItem(0)

@@ -7,6 +7,8 @@ package com.aurora.store.compose.ui.apps
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,6 +29,7 @@ internal fun CategoriesContent(
     section: StoreSection,
     categoryType: Category.Type = section.categoryBrowseType,
     viewModel: CategoryViewModel,
+    contentListState: LazyListState = rememberLazyListState(),
     onCategoryClick: (Category) -> Unit
 ) {
     val state by viewModel.liveData.observeAsState()
@@ -39,17 +42,31 @@ internal fun CategoriesContent(
     val categories = (state as? ViewState.Success<*>)?.data as? CategoryStash
     val list = categories?.get(categoryType)
 
-    CategoriesBody(list = list, onCategoryClick = onCategoryClick)
+    CategoriesBody(
+        list = list,
+        listState = contentListState,
+        onCategoryClick = onCategoryClick
+    )
 }
 
 @Composable
-private fun CategoriesBody(list: List<Category>?, onCategoryClick: (Category) -> Unit = {}) {
+private fun CategoriesBody(
+    list: List<Category>?,
+    listState: LazyListState,
+    onCategoryClick: (Category) -> Unit = {}
+) {
     if (list.isNullOrEmpty()) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState
+        ) {
             items(10) { ShimmerCategoryRow() }
         }
     } else {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState
+        ) {
             items(count = list.size, key = { list[it].title }) { index ->
                 CategoryItem(
                     category = list[index],
@@ -64,7 +81,7 @@ private fun CategoriesBody(list: List<Category>?, onCategoryClick: (Category) ->
 @Preview(showBackground = true)
 @Composable
 private fun CategoriesBodyLoadingPreview() {
-    CategoriesBody(list = null)
+    CategoriesBody(list = null, listState = rememberLazyListState())
 }
 
 @PreviewWrapper(ThemePreviewProvider::class)
@@ -83,5 +100,5 @@ private fun CategoriesBodyLoadedPreview() {
         "Education",
         "Entertainment"
     ).map { Category(title = it, imageUrl = "") }
-    CategoriesBody(list = categories)
+    CategoriesBody(list = categories, listState = rememberLazyListState())
 }

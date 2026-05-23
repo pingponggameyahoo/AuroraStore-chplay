@@ -5,21 +5,27 @@
 
 package com.aurora.store.compose.ui.apps
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Text
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.aurora.gplayapi.data.models.Category
 import com.aurora.gplayapi.helpers.contracts.StreamContract
@@ -27,6 +33,8 @@ import com.aurora.gplayapi.helpers.contracts.TopChartsContract
 import com.aurora.store.R
 import com.aurora.store.compose.composable.PlayStorePrimaryScrollableTabRow
 import com.aurora.store.compose.composable.PlayStoreTab
+import com.aurora.store.compose.composable.PlayStoreTopBar
+import com.aurora.store.compose.composable.play.rememberPlayStoreHeaderHidden
 import com.aurora.store.compose.navigation.Destination
 import com.aurora.store.util.Preferences
 import com.aurora.store.viewmodel.category.CategoryViewModel
@@ -40,7 +48,9 @@ fun AppsGamesScreen(
     streamViewModel: StreamViewModel = hiltViewModel(key = "stream_${section.pageType}"),
     topChartViewModel: TopChartViewModel = hiltViewModel(key = "topChart_${section.pageType}"),
     categoryViewModel: CategoryViewModel = hiltViewModel(key = "category_${section.pageType}"),
-    onNavigateTo: (Destination) -> Unit = {}
+    onNavigateTo: (Destination) -> Unit = {},
+    onNotificationClick: () -> Unit = {},
+    onAvatarClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val isForYouEnabled = Preferences.getBoolean(context, Preferences.PREFERENCE_FOR_YOU)
@@ -54,6 +64,12 @@ fun AppsGamesScreen(
 
     val pagerState = rememberPagerState { tabs.size }
     val coroutineScope = rememberCoroutineScope()
+    val contentListState = rememberLazyListState()
+    val hidePlayHeader by rememberPlayStoreHeaderHidden(contentListState)
+
+    LaunchedEffect(pagerState.currentPage) {
+        contentListState.scrollToItem(0)
+    }
 
     LaunchedEffect(Unit) {
         if (section != StoreSection.BOOKS) {
@@ -69,7 +85,19 @@ fun AppsGamesScreen(
             .fillMaxSize()
             .background(colorResource(R.color.play_tab_container))
     ) {
+        AnimatedVisibility(
+            visible = !hidePlayHeader,
+            enter = expandVertically(),
+            exit = shrinkVertically()
+        ) {
+            PlayStoreTopBar(
+                onNotificationClick = onNotificationClick,
+                onAvatarClick = onAvatarClick
+            )
+        }
+
         PlayStorePrimaryScrollableTabRow(
+            modifier = if (hidePlayHeader) Modifier.statusBarsPadding() else Modifier,
             selectedTabIndex = pagerState.currentPage
         ) {
             tabs.forEachIndexed { index, tab ->
@@ -102,6 +130,7 @@ fun AppsGamesScreen(
                     section = section,
                     viewModel = streamViewModel,
                     streamType = StreamContract.Type.HOME,
+                    contentListState = contentListState,
                     onAppClick = { onNavigateTo(Destination.AppDetails(it.packageName)) },
                     onHeaderClick = { onNavigateTo(Destination.StreamBrowse(it)) },
                     onClusterScrolled = { cluster ->
@@ -115,6 +144,7 @@ fun AppsGamesScreen(
                 StoreTab.TopCharts -> TopChartsContent(
                     section = section,
                     viewModel = topChartViewModel,
+                    contentListState = contentListState,
                     onAppClick = { onNavigateTo(Destination.AppDetails(it.packageName)) }
                 )
 
@@ -122,6 +152,7 @@ fun AppsGamesScreen(
                     section = section,
                     categoryType = Category.Type.FAMILY,
                     viewModel = categoryViewModel,
+                    contentListState = contentListState,
                     onCategoryClick = { onNavigateTo(Destination.CategoryBrowse(it)) }
                 )
 
@@ -129,6 +160,7 @@ fun AppsGamesScreen(
                     section = section,
                     viewModel = streamViewModel,
                     streamType = StreamContract.Type.PREMIUM_GAMES,
+                    contentListState = contentListState,
                     onAppClick = { onNavigateTo(Destination.AppDetails(it.packageName)) },
                     onHeaderClick = { onNavigateTo(Destination.StreamBrowse(it)) },
                     onClusterScrolled = { cluster ->
@@ -145,12 +177,14 @@ fun AppsGamesScreen(
                 StoreTab.Types -> CategoriesContent(
                     section = section,
                     viewModel = categoryViewModel,
+                    contentListState = contentListState,
                     onCategoryClick = { onNavigateTo(Destination.CategoryBrowse(it)) }
                 )
 
                 StoreTab.Genres -> CategoriesContent(
                     section = section,
                     viewModel = categoryViewModel,
+                    contentListState = contentListState,
                     onCategoryClick = { onNavigateTo(Destination.CategoryBrowse(it)) }
                 )
 
@@ -159,6 +193,7 @@ fun AppsGamesScreen(
                     section = section,
                     viewModel = streamViewModel,
                     streamType = tab.streamType(section),
+                    contentListState = contentListState,
                     onAppClick = { onNavigateTo(Destination.AppDetails(it.packageName)) },
                     onHeaderClick = { onNavigateTo(Destination.StreamBrowse(it)) },
                     onClusterScrolled = { cluster ->
@@ -175,6 +210,7 @@ fun AppsGamesScreen(
                     section = section,
                     tab = tab,
                     viewModel = topChartViewModel,
+                    contentListState = contentListState,
                     onAppClick = { onNavigateTo(Destination.AppDetails(it.packageName)) }
                 )
             }

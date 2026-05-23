@@ -39,7 +39,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.aurora.store.MainViewModel
 import com.aurora.store.R
-import com.aurora.store.compose.composable.PlayStoreTopBar
 import com.aurora.store.compose.composition.LocalNetworkStatus
 import com.aurora.store.compose.navigation.Destination
 import com.aurora.store.compose.ui.apps.AppsGamesScreen
@@ -202,20 +201,7 @@ private fun MainScreenBody(
         )
     }
 
-    val currentPage = MainPagerPage.entries[pagerState.currentPage]
-    val showMainTopBar = currentPage == MainPagerPage.GAMES ||
-        currentPage == MainPagerPage.APPS ||
-        currentPage == MainPagerPage.UPDATES
-
     Scaffold(
-        topBar = {
-            if (showMainTopBar) {
-                PlayStoreTopBar(
-                    onNotificationClick = { onNavigateTo(Destination.Updates) },
-                    onAvatarClick = { showMoreSheet = true }
-                )
-            }
-        },
         bottomBar = {
             NavigationBar(
                 containerColor = colorResource(R.color.play_nav_bar_background)
@@ -269,11 +255,15 @@ private fun MainScreenBody(
                 when (MainPagerPage.entries[page]) {
                     MainPagerPage.GAMES -> AppsGamesScreen(
                         section = StoreSection.GAMES,
-                        onNavigateTo = ::handleNavigation
+                        onNavigateTo = ::handleNavigation,
+                        onNotificationClick = { onNavigateTo(Destination.Updates) },
+                        onAvatarClick = { showMoreSheet = true }
                     )
                     MainPagerPage.APPS -> AppsGamesScreen(
                         section = StoreSection.APPS,
-                        onNavigateTo = onNavigateTo
+                        onNavigateTo = onNavigateTo,
+                        onNotificationClick = { onNavigateTo(Destination.Updates) },
+                        onAvatarClick = { showMoreSheet = true }
                     )
                     MainPagerPage.SEARCH -> SearchScreen(
                         embeddedInMain = true,
@@ -281,7 +271,9 @@ private fun MainScreenBody(
                     )
                     MainPagerPage.UPDATES -> AppsGamesScreen(
                         section = StoreSection.BOOKS,
-                        onNavigateTo = onNavigateTo
+                        onNavigateTo = onNavigateTo,
+                        onNotificationClick = { onNavigateTo(Destination.Updates) },
+                        onAvatarClick = { showMoreSheet = true }
                     )
                     MainPagerPage.YOU -> InstalledScreen(
                         onNavigateTo = onNavigateTo
