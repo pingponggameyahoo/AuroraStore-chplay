@@ -14,7 +14,7 @@ import com.aurora.gplayapi.data.models.App
 import com.aurora.gplayapi.data.models.StreamCluster
 import com.aurora.gplayapi.helpers.contracts.StreamContract
 import com.aurora.store.HomeStash
-import com.aurora.store.compose.composable.StreamCarousel
+import com.aurora.store.compose.composable.play.PlayStoreStreamCarousel
 import com.aurora.store.compose.composition.observeForced
 import com.aurora.store.data.model.ViewState
 import com.aurora.store.viewmodel.homestream.StreamViewModel
@@ -38,7 +38,7 @@ internal fun ForYouContent(
 
     @Suppress("UNCHECKED_CAST")
     val streamBundle = (state as? ViewState.Success<*>)?.data as? HomeStash
-    StreamCarousel(
+    PlayStoreStreamCarousel(
         modifier = Modifier.fillMaxSize(),
         streamBundle = streamBundle?.get(category),
         onHeaderClick = onHeaderClick,

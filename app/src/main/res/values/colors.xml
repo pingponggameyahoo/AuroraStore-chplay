@@ -33,4 +33,11 @@
     <color name="play_tab_indicator">#0B57D0</color>
     <color name="play_tab_container">#FFFFFF</color>
     <color name="play_tab_divider">#E8EAED</color>
+
+    <!-- Play Store home feed (grey canvas, white cards) -->
+    <color name="play_store_content_background">#F1F3F4</color>
+    <color name="play_store_card_surface">#FFFFFF</color>
+    <color name="play_store_text_secondary">#5F6368</color>
+    <color name="play_store_featured_badge">#FCE4EC</color>
+    <color name="play_store_featured_badge_text">#C2185B</color>
 </resources>

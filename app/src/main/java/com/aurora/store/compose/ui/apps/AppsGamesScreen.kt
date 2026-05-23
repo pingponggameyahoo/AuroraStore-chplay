@@ -5,6 +5,7 @@
 
 package com.aurora.store.compose.ui.apps
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
@@ -17,6 +18,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.aurora.gplayapi.data.models.Category
@@ -62,7 +64,11 @@ fun AppsGamesScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colorResource(R.color.play_store_content_background))
+    ) {
         PlayStorePrimaryScrollableTabRow(
             selectedTabIndex = pagerState.currentPage
         ) {
