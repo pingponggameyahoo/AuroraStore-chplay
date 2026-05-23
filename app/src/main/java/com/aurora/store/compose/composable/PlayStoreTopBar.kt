@@ -67,6 +67,7 @@ fun PlayStoreTopBar(
     val contentInset = dimensionResource(R.dimen.play_home_content_inset)
     val actionsEndInset = dimensionResource(R.dimen.play_top_bar_actions_end_inset)
     val logoNudgeDown = dimensionResource(R.dimen.play_top_bar_logo_nudge_down)
+    val logoInsetExtra = dimensionResource(R.dimen.play_top_bar_logo_inset_extra)
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -84,6 +85,7 @@ fun PlayStoreTopBar(
                 painter = painterResource(R.drawable.ic_play_store_logo),
                 contentDescription = stringResource(R.string.google_play_store_desc),
                 modifier = Modifier
+                    .padding(start = logoInsetExtra)
                     .offset(y = logoNudgeDown)
                     .padding(bottom = dimensionResource(R.dimen.spacing_xsmall))
                     .requiredSize(logoSize)

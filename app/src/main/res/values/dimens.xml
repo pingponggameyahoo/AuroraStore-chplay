@@ -67,7 +67,9 @@
     <!-- Play Store home header (top bar + sub-tabs) -->
     <dimen name="play_home_content_inset">16dp</dimen>
     <dimen name="play_top_bar_content_height">52dp</dimen>
-    <dimen name="play_top_bar_logo_size">28dp</dimen>
+    <!-- Logo 39dp −10% ≈ 35dp; inset extra −10% of former logo (39dp) toward screen start -->
+    <dimen name="play_top_bar_logo_size">35dp</dimen>
+    <dimen name="play_top_bar_logo_inset_extra">24dp</dimen>
     <dimen name="play_top_bar_action_icon_size">28dp</dimen>
     <dimen name="play_top_bar_avatar_size">36dp</dimen>
     <dimen name="play_top_bar_actions_end_inset">20dp</dimen>
