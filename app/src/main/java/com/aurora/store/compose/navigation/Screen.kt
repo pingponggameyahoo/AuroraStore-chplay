@@ -90,13 +90,19 @@ sealed class Screen : NavKey, Parcelable {
     data object UIPreference : Screen()
 
     @Serializable
+    data object NotificationPreference : Screen()
+
+    @Serializable
     data object UpdatesPreference : Screen()
 
     @Serializable
     data object SourceFilters : Screen()
 
     @Serializable
-    data object Splash : Screen()
+    data object SecurityPreference : Screen()
+
+    @Serializable
+    data class Splash(val packageName: String? = null) : Screen()
 
     @Serializable
     data class Main(val initialTab: Int = 0) : Screen()

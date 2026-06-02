@@ -87,21 +87,29 @@ class AuthViewModel @Inject constructor(
                 )
             } catch (exception: Exception) {
                 Log.e(TAG, "Failed to generate Session", exception)
-                _authState.value = AuthState.Failed(exception.message.toString())
+                val message = when (exception) {
+                    is UnknownHostException -> context.getString(R.string.check_connectivity)
+                    else -> exception.message.toString()
+                }
+
+                _authState.value = AuthState.Failed(message)
             }
         }
     }
 
-    fun buildAuthData(context: Context, email: String, oauthToken: String?) {
+    fun buildAuthData(context: Context, email: String, oauthToken: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = aC2DMTask.getAC2DMResponse(email, oauthToken)
                 if (response.isNotEmpty()) {
                     val aasToken = response["Token"]
                     if (aasToken != null) {
-                        Preferences.putString(context, Constants.ACCOUNT_EMAIL_PLAIN, email)
+                        val accountEmail = response["Email"]?.takeIf { it.isNotBlank() } ?: email
+                        Preferences.putString(context, Constants.ACCOUNT_EMAIL_PLAIN, accountEmail)
                         Preferences.putString(context, Constants.ACCOUNT_AAS_PLAIN, aasToken)
-                        AuroraApp.events.send(AuthEvent.GoogleLogin(true, email, aasToken))
+                        AuroraApp.events.send(
+                            AuthEvent.GoogleLogin(true, accountEmail, aasToken)
+                        )
                     } else {
                         Preferences.putString(context, Constants.ACCOUNT_EMAIL_PLAIN, "")
                         Preferences.putString(context, Constants.ACCOUNT_AAS_PLAIN, "")
